@@ -14,16 +14,15 @@ from cdi.library_example.models import (
 # Helper functions #
 ####################
 
-def concat(*args : Any) -> CQLExpr:
-    '''Concatenate a list'''
-    if len(args) < 1:
-        return args # type: ignore
+def concat(*args : CQLExpr) -> CQLExpr:
+    '''Concatenate multiple strings within CQL'''
+    assert len(args) > 1
     out = cat(args[-2],args[-1])
     for a in reversed(args[:-2]):
         out = cat(a,out)
     return out
 
-wild = Lit(".*",String)
+wild = Lit(".*",String) # regex wildcard
 ##################
 # Java Functions #
 ##################

@@ -11,8 +11,8 @@ from cdi import (
 
 
 ################################################################################
-# Helpers for Path equalities
-#---------------------------
+# Section 0: Helper functions and initialization #
+##################################################
 
 def Rename_attrs(obj1 : Entity, obj2 : Entity, attrs : D[str, str]) -> L[PathEQ]:
     '''Shorthand function for identifying columns/FKs of two entities'''
@@ -34,8 +34,6 @@ cell_dict = {**{a+i:b+i for a,b in zip('xyz','abc') for i in '123'},
 compexpr = SUBSELECT(GROUP_CONCAT(atoms['element_id']),
                                   tab   = 'atoms A',
                                   where = 'A.structure_id = atoms.structures.id')
-
-#(SELECT MIN(`id`) FROM atoms A WHERE A.structure_id=atoms.structure_id )
 
 def readJSON(key : str) -> SQLExpr:
     '''
@@ -76,17 +74,18 @@ elemcount = countsubstr(s0['comp'], cat(l0['symbol'], JLit(',',String)))
 msj_kwargs = ['comp','xs','ys','zs'] + [a+b for a in 'xyz' for b in '123']
 msj_args   = [structs[x] for x in msj_kwargs]
 
-# Specification of overlap
-#------------------------
+#######################################
+# Section 1: Specification of overlap #
+#######################################
 
 overlap = Overlap(s1=oqmd, s2=rich,
 
     paths=[
-            # Path equalities specified one at a time
+            # 1.1: Path equalities specified one at a time
             #----------------------------------------
             PathEQ(Path(elems['z']),Path(elem['atomic_number'])),
 
-            # Path Equalities defined with some sort of loop
+            # 1.2: Path Equalities defined with some sort of loop
             #-----------------------------------------------
         ] + ID_attrs(calcs,job, ['energy','user','job_name'])                   \
           + ID_attrs(atoms,atom,['x','y','z','ind'])                            \
@@ -106,7 +105,7 @@ overlap = Overlap(s1=oqmd, s2=rich,
         ],
 
     sql_attr1 = [
-        # Attributes computed in SQL upon landing
+        # 1.3: Attributes computed in SQL upon landing
         #----------------------------------------
         SQLAttr(calcs, 'psp',     Varchar, readJSON('potentials')),
         SQLAttr(calcs, 'pw',      Decimal, toDecimal(readJSON('encut'))),
@@ -121,8 +120,8 @@ overlap = Overlap(s1=oqmd, s2=rich,
         SQLAttr(structs,'ys',     String, ys),
         SQLAttr(structs,'zs',     String, zs)
 
-        # More SQL attributes, defined with loops
-        #----------------------------------
+        # 1.4: More SQL attributes, defined with loops
+        #--------------------------------------------
 
             # Compute the L² Norm of three 3D vectors
        ] + [SQLAttr(structs,abc,Double,
@@ -133,14 +132,14 @@ overlap = Overlap(s1=oqmd, s2=rich,
        ] + [SQLAttr(calcs,attr,Varchar,Literal(constval))
             for attr,constval in calc_constants.items()],
 
-    # Attrs computed in CQL (can use Java functions + info from multiple tables)
+    # 1.4: Attrs computed in CQL (can use Java functions + info from multiple tables)
     #---------------------------------------------------------------------------
     new_attr1 = [NewAttr(structs,'composition',  String, mcd(structs['comp'])),
                  NewAttr(structs,'raw',          Text,   msj(*msj_args)),
                  NewAttr(atoms,'ind',Int,bigint_to_int(atoms['bigind']))],
 
-    # New Entities computed in CQL
-    #-----------------------------
+    # 1.5: New Entities computed in CQL
+    #----------------------------------
     new_ent1  = [NewEntity(name  = 'struct_composition',
                            gens  = [s0, l0],
                            where = [EQ(gt(elemcount, zero) , JLit('true',Boolean))],
