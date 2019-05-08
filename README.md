@@ -53,7 +53,8 @@ Nov = Entity(
               Attr('year',  Integer,            desc = 'Book publish date')])
 ```
 
-We get a Python object that we'll see can be used in many interesting ways. There are some important things to note here: if we were constructing a CQL file to connect to an external database, then it is important that we correctly identify the PK by specifying `id`[^1].  Another nuance is that each `Entity` has the option to have _identifying_ information (data for which, if two instantiations of the entity agree on, then they should be considered the same entity). By making _title_ the sole piece of identifying data for **Nov**, we are making a modeling assumption that no two distinct books share the same title. This is important to do if we care about the situation where two databases are referring to the same novel, despite representing it very differently; we need to know what counts as identifying information in order to make this connection.
+We get a Python object that we'll see can be used in many interesting ways. There are some important things to note here: if we were constructing a CQL file to connect to an external database, then it is important that we correctly identify the PK by specifying `id`.<sup>[1](#myfootnote1)</sup>
+  Another nuance is that each `Entity` has the option to have _identifying_ information (data for which, if two instantiations of the entity agree on, then they should be considered the same entity). By making _title_ the sole piece of identifying data for **Nov**, we are making a modeling assumption that no two distinct books share the same title. This is important to do if we care about the situation where two databases are referring to the same novel, despite representing it very differently; we need to know what counts as identifying information in order to make this connection.
 
 Now, let's add to our model model two more entities: Chapters (of a novel, which have an index and some text associated with them) and Readers (who have names, a favorite novel, and a list of books they've checked out from a library). These entities are related to other entities, so we use the notion of a foreign key to relate them. Just like with attributes, a `FK` can be _identifying_ or not - it's important to realize why **Chap** needs its FK to **Nov** in order to be identified whereas this is not the case for a reader's favorite book.
 
@@ -150,7 +151,7 @@ oqmd_db   = Conn(host = 'mysql.categoricaldata.net',
                  pw   = 'quantumchemistry')
 ```
 
-For small toy examples, we can enter the data manually. An `Instance` maps attributes/relations to a map of generators (distinct records of some entity) to their values for that attribute/relation.
+For small toy examples, we can enter the data manually. An `Instance` maps attributes/relations to a map of generators (distinct records of some entity) which gives a generator's values for that attribute/relation.
 
 ```python
 r1,r2               = [Gen('r%d'%i,Readr) for i in range(1,3)]
@@ -241,7 +242,7 @@ overlap = Overlap(
 )
 ```
 
-Giving **Chap** a 'new attribute' *n_words* works because the corresponding entity **Tar.Chapter** has an attribute _n_words_. Something similar can be done with a list of `NewFK` instances passed to `new_fk1`[^2]. We've patched up one hole, but there are still many remaining elements of **Tar** that **Src** does not have. We do not need to patch them all, though our data migration becomes much more rich if we put in the effort to do as much as possible. Sometimes it is possible to generate new _entities_ from old ones in case **Tar** has the same information perhaps distributed throughout more entities. An example here would be the **Author** entity, which has _name_ and _born_ as attributes. We certainly do not have information to populate _born_, but we have author names as an attribute of **Nov**.
+Giving **Chap** a 'new attribute' *n_words* works because the corresponding entity **Tar.Chapter** has an attribute _n_words_. Something similar can be done with a list of `NewFK` instances passed to `new_fk1`.<sup>[2](#myfootnote2)</sup> We've patched up one hole, but there are still many remaining elements of **Tar** that **Src** does not have. We do not need to patch them all, though our data migration becomes much more rich if we put in the effort to do as much as possible. Sometimes it is possible to generate new _entities_ from old ones. Consider the **Author** entity, which has _name_ and _born_ as attributes. We certainly do not have information to populate _born_, but we have author names as an attribute of **Nov**.
 
 ```python
 from cdi import NewEntity
@@ -255,7 +256,7 @@ overlap = Overlap(
 )
 ```
 
-This says that we have possibly a different author for every instance of **Nov**, and, in conjunction with our earlier path equality (`Nov.aname` ≋ `Novel.wrote.authorname`), is sufficient to specify what we want.[^3] A more complicated instance of entity creation is below:
+This says that we have possibly a different author for every instance of **Nov**, and, in conjunction with our earlier path equality (`Nov.aname` ≋ `Novel.wrote.authorname`), is sufficient to specify what we want.<sup>[3](#myfootnote3)</sup> A more complicated instance of entity creation is below:
 
 ```python
 from cdi import CQLExpr, Boolean, Lit, EQ
@@ -310,16 +311,22 @@ In the CQL GUI, we can open this file and run it. The result will look like this
 
 ![Demo](http://web.stanford.edu/~ksb/Demo_Result.png)
 
-There are many things we can check to see that the data was migrated properly (such as counting the number of letters in Reader's names + Novel titles and comparing to **Borrow**.*total_len*), and that attributes that could not have been populated were not (e.g. **Author**.*born*, **Chapter**.*page_start*).[^4]
+There are many things we can check to see that the data was migrated properly (such as counting the number of letters in Reader's names + Novel titles and comparing to **Borrow**.*total_len*), and that attributes that could not have been populated were not (e.g. **Author**.*born*, **Chapter**.*page_start*).<sup>[4](#myfootnote4)</sup>
 
 
 ### To do
 A tutorial example with merge, data-integrity constraints, generating SQL with Python, and connecting to arbitrary scripts for user-defined functions. For now the input files for the *science example* are the only help for doing these things.
 
 ## Further reading
+
 You can read the associated paper which discusses the *science example* in more depth and application of this technology to addressing data-sharing challenges in computational science [here](https://doi.org/10.1016/j.commatsci.2019.04.002) or on [arXiv](https://arxiv.org/abs/1903.10579).
 
-[^1]: This ID is only for internal bookkeeping and should not be part of the model (all IDs should be interchangeable with any other unique identifier).
-[^2]: Note that the names _new_attr1_, _new_fk1_, and _new_ent1_ come from providing something to **Src** found in **Tar**, whereas _new_attr2_ would provide something to **Tar** not found in **Src**. This is always meaningless for `Migrate`, but not for `Merge`; the same `Overlap` constructor is used for both `Merge` and `Migrate` because is a lot of overlapping information needed to do these operations.
-[^3]: Specifying identifying information for **Author** is what prevents us from having duplicates in the end.
-[^4]: However, certain things may be confusing at first, like the three mystery authors with no information and three instances of **Library** which could not possibly have had corresponding data in **Src**. The key to understanding this behavior is understanding how CQL handles the enforcement of foreign key constraints. A cascade of events was begun by creating three **Borrow** instances without providing information about which **Library** the books were borrowed at. We don't know anything about those libraries, but we do know they must exist, so three records in **Library** are automatically generated (we don't have any reason to conclude they are the same library - all we know is that we know nothing about their details). Likewise, each of those libraries has a most popular novel (although we know nothing about it), so three records of **Novel** are automatically generated, which in turn generate the three authors that have no information. It is possible to write CQL input files that handle these nuances differently, but the strategy above could be seen as a strategy for dealing with unknowns with the fewest assumptions.
+## Footnotes
+
+<a name="myfootnote1">1</a>: This ID is only for internal bookkeeping and should not be part of the model (all IDs should be interchangeable with any other unique identifier).
+
+<a name="myfootnote2">2</a>: Note that the names _new_attr1_, _new_fk1_, and _new_ent1_ come from providing something to **Src** found in **Tar**, whereas _new_attr2_ would provide something to **Tar** not found in **Src**. This is always meaningless for `Migrate`, but not for `Merge`; the same `Overlap` constructor is used for both `Merge` and `Migrate` because is a lot of overlapping information needed to do these operations.
+
+<a name="myfootnote3">3</a>: Specifying identifying information for **Author** is what prevents us from having duplicates in the end.
+
+<a name="myfootnote4">4</a>: However, certain things may be confusing at first, like the three mystery authors with no information and three instances of **Library** which could not possibly have had corresponding data in **Src**. The key to understanding this behavior is understanding how CQL handles the enforcement of foreign key constraints. A cascade of events was begun by creating three **Borrow** instances without providing information about which **Library** the books were borrowed at. We don't know anything about those libraries, but we do know they must exist, so three records in **Library** are automatically generated (we don't have any reason to conclude they are the same library - all we know is that we know nothing about their details). Likewise, each of those libraries has a most popular novel (although we know nothing about it), so three records of **Novel** are automatically generated, which in turn generate the three authors that have no information. It is possible to write CQL input files that handle these nuances differently, but the strategy above could be seen as a strategy for dealing with unknowns with the fewest assumptions.
