@@ -1,12 +1,13 @@
 # External
-from typing import Any
+from typing    import Any
+from functools import reduce
 
 # Internal
 from cdi import (Migrate, JavaFunc, Gen, String, Integer, Boolean,NewFK,
                       Path,Overlap,PathEQ,EQ, Conn, NewAttr, NewEntity,CQLExpr,
                       Attr, FK, String,JLit as Lit,Boolean)
 
-from cdi.library_example.models import (
+from .models import (
     src,tar,isrc,itar,Chap,Nov,Readr,Chapter,Novel,Reader,Borrow,Author,Library)
 ################################################################################
 
@@ -15,14 +16,14 @@ from cdi.library_example.models import (
 ####################
 
 def concat(*args : CQLExpr) -> CQLExpr:
-    '''Concatenate multiple strings within CQL'''
-    assert len(args) > 1
-    out = cat(args[-2],args[-1])
-    for a in reversed(args[:-2]):
-        out = cat(a,out)
-    return out
+    '''Concatenate multiple strings within CQL: folds n arguments into a series of binary applications of 'cat' '''
+    return reduce(cat,args)
+
+
 
 wild = Lit(".*",String) # regex wildcard
+
+
 ##################
 # Java Functions #
 ##################
@@ -33,6 +34,8 @@ matches     = JavaFunc('matches',     [String,String],   Boolean, "return input[
 cat         = JavaFunc('cat',         [String,String],   String,  "return input[0] + input[1]")
 
 funcs = [count_words,Len,plus,matches,cat]
+
+
 
 ########################################################################
 # Map any relevant objs/attrs/relations in source onto paths in target #
@@ -84,5 +87,5 @@ overlap = Overlap(
 
 if __name__ == '__main__':
     m  = Migrate(src = src, tar = tar, overlap = overlap, funcs = funcs)
-    fi = m.file(src = isrc, tar = itar, merged = Conn(db = 'lib_merged'))
+    fi = m.file(src = isrc, tar = itar)
     with open('cdi/library_example/lib.cql','w') as f: f.write(fi)

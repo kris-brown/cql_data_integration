@@ -1,5 +1,5 @@
 # External modules
-from typing import List as L, Dict as D, Tuple as T, Union as U
+from typing import List as L, Dict as D, Tuple as T, Union as U, Optional as O
 from abc    import ABCMeta,abstractmethod
 from re     import split,sub,findall
 
@@ -22,7 +22,7 @@ from cdi.core.primitives import (CQLSection,Expr,Gen as CQLGen,JLit,JavaFunc,
                                       DelInstance,EvalInstance,MapInstance,
                                       CoProdInstance,Exec,Export,GetMapping,
                                       ExprFunc,QueryObj,Java,JavaConst,JavaType,
-                                      SchemaColimitQuotient,SchemaColimitModify,
+                                      SchemaColimitQuotient,
                                       GetSchema,Instance,Include)
 '''
 Defines the high-level operations (Merge/Migrate) that this interface exposes
@@ -73,7 +73,7 @@ class CQL(Base, metaclass = ABCMeta):
     ######################
     # main public method #
     ######################
-    def file(self, src    : Input, tar : Input, merged : Conn) -> str:
+    def file(self, src    : Input, tar : Input, merged : Conn = None) -> str:
         '''A file is just concatenation of sections'''
         fi = '\n\n\n'.join([s.show() for s in self.sections(src,tar,merged)])
         return self._align(fi) # attempt to prettify
@@ -163,8 +163,9 @@ class CQL(Base, metaclass = ABCMeta):
             i = conn.inst('i'+name,ss)
             return i,[i]
 
-    def _export(self,sect:int,conn:Conn,ifinal:Instance) -> L[CQLSection]:
+    def _export(self,sect:int,conn:O[Conn],ifinal:Instance) -> L[CQLSection]:
         '''Export an instance to a DB connection'''
+        if not conn: return []
         drop   = Exec('cmd_drop',conn,'DROP DATABASE IF EXISTS `%s`'%conn.db,db=False)
         create = Exec('cmd_create',conn,"CREATE SCHEMA `%s`"%conn.db,db=False)
         merge  = Export('cmd_merged',conn,ifinal)
@@ -223,11 +224,13 @@ class Migrate(CQL):
     def sections(self, src_conn : Input, tar_conn : Input, merged_conn : Conn)-> L[CQLSection]:
 
         s_inter  = self._inter() # intermediate schema
-
+        starnc   = self.tar.copy()
+        starnc.pes = set(); starnc.oes = set()
         s1       = self.overlap.add_sql_attr(self.src) # only source has 'extra' attrs from landing, possibly
 
         src      = s1.schema('src',self._ty) # this is an CQL schema, lower level than the CQL interface schema
         tar      = self.tar.schema('tar',self._ty)
+        tarnc    = starnc.schema('tar_nc',self._ty)
         inter    = s_inter.schema('inter',self._ty)
         l1,l2    = self._lands()
         isrc,src_sects = self._inst(1,'src',src_conn,s1,src,l1)
@@ -247,20 +250,21 @@ class Migrate(CQL):
 
             for en,e in s_inter.entities.items()]
 
-        M      = MapLit('M',inter,tar,maps=maps)
+        M      = MapLit('M',inter,tarnc,maps=maps)
         ialt   = EvalInstance('i_altered',Q,isrc)
         imap   = MapInstance('i_mapped','sigma',M,ialt)
-        imrg   = CoProdInstance('i_merged',imap,itar,tar)
+        icon   = DelInstance('i_constrained',imap,tar)
+        imrg   = CoProdInstance('i_merged',icon,itar,tar)
         final  = self.tar.quotient('i_final',imrg)
 
         return [Title(0, 1, 'Set-up'), self.default,  self._ty,
-                Title(0, 2, 'Declare schemas'), src, tar, inter,
+                Title(0, 2, 'Declare schemas'), src, tar, tarnc, inter,
                 Title(1, name = 'Create source instance')] + src_sects + [
                 Title(2, name = 'Create target instance')] + tar_sects + [
                 Title(3, name = "Data migration"),
                 Title(3, 1, "Query which adds extra information when eval'd"),  Q,
                 Title(3, 2, 'Mapping'),  M,
-                Title(3, 3, 'Move instance data from src to target'), ialt, imap, imrg,
+                Title(3, 3, 'Move instance data from src to target'), ialt, imap, icon, imrg,
                 Title(3, 4, 'Record linkages'), final,
                 ] + self._export(4,merged_conn,final)
 
@@ -283,14 +287,11 @@ class Migrate(CQL):
             o.fks   = {fkn:fk for fkn,fk in o.fks.items()
                             if fk.path() in self.overlap.patheqs}
 
-        pes   = [] # type: L[PathEQ]
-        inter = Schema('intermediate',objs,[])
-
-        inter.pes   = {p for p in copy.pes if p.exists_in(inter)}
+        inter = Schema('inter',objs,[])
 
         assert not self.overlap.new2(), 'Cannot add "new" things to the target schema of a migration'
 
-        for new in self.overlap.new1(): new.add(inter)
+        for new in self.overlap.new1(): new.add(inter);
 
         return inter
 
@@ -341,7 +342,7 @@ class Merge(CQL):
         return 'Merge<%s->%s>'%(self.src.name,self.tar.name)
 
 
-    def sections(self, src_conn : Input, tar_conn : Input, merged_conn : Conn)-> L[CQLSection]:
+    def sections(self, src_conn : Input, tar_conn : Input, merged_conn : Conn = None)-> L[CQLSection]:
 
         s1       = self.overlap.add_sql_attr(self.src)           # extra attributes added during landing, potentially
         t1       = self.overlap.add_sql_attr(self.tar,src=False) # extra attributes added during landing, potentially

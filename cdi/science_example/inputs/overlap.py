@@ -1,9 +1,11 @@
 # External
 from typing import List as L, Dict as D
+
 # Internal
-from cdi.science_example.inputs.oqmd      import oqmd,calc as calcs,structs,atoms,elems
-from cdi.science_example.inputs.catalysis import rich,job,elem,calc,struct,cell,atom
-from cdi.science_example.inputs.javafuncs import cat,countsubstr,gt,mcd,msj,bigint_to_int
+from ..inputs.oqmd      import oqmd,calc as calcs,structs,atoms,elems
+from ..inputs.catalysis import rich,job,elem,calc,struct,cell,atom
+from ..inputs.javafuncs import cat,countsubstr,gt,mcd,msj,bigint_to_int
+
 from cdi import (
     Overlap,Entity,PathEQ,Path,Gen,SQLAttr,NewAttr,NewEntity, Attr,FK,EQ,Long,
     toDecimal,Int,Text,String,Bigint,Varchar,Boolean,Double,Decimal,Sum,Literal,

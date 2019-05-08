@@ -546,7 +546,7 @@ class SchemaColimitModify(SchemaColimit):
         self.rm_fks   = rm_fks
         assert not rm_attrs
         assert not rm_fks
-        
+
     def __str__(self)->str:
         return 'SchemaColimitModify<%s>'%(self.sc.name)
 
@@ -820,7 +820,7 @@ class LandInstance(Instance):
     def print(self)->str:
         e = nnt([arr.format(ent.name,sql) for ent,sql in self.ents.items()])
         args = [self.conn.jdbc(),self.schema.name,e]
-        return 'import_jdbc "com.mysql.jdbc.Driver" "{}" : {} {{\n\t{} }}'.format(*args)
+        return 'import_jdbc "{}" : {} {{\n\t{} }}'.format(*args)
 
 class EmptyInstance(Instance):
     def __init__(self,name:str,schema:Schema)->None:
@@ -874,7 +874,7 @@ class Exec(Command):
         self.db    = db
     def print(self) -> str:
         args = [self.conn.jdbc(self.db),self.sql]
-        return 'exec_jdbc "com.mysql.jdbc.Driver" "{}" {{"{}"}}'.format(*args)
+        return 'exec_jdbc "{}" {{"{}"}}'.format(*args)
 
 class Export(Command):
     def __init__(self, name : str, conn : Conn, inst : Instance) -> None:
@@ -883,4 +883,4 @@ class Export(Command):
         self.inst  = inst
     def print(self) -> str:
         args = [self.inst.name, self.conn.jdbc()]
-        return 'export_jdbc_instance {} "com.mysql.jdbc.Driver" "{}" ""'.format(*args)
+        return 'export_jdbc_instance {} "{}" ""'.format(*args)

@@ -1,16 +1,8 @@
 # External
 from typing import Callable as C
 # Internal
-from cdi import Schema, Entity, Attr, Varchar,FK, Instance, Gen, JLit, Integer
+from cdi import Schema, Entity, Attr, Varchar,FK, Instance, Gen, JLit, Integer, Date
 ################################################################################
-Chap = Entity(
-    name  = 'Chap',
-    desc  = "A chapter within a book",
-    id    = 'id',
-    attrs = [Attr('num',id = True,   desc = 'Chapter #'),
-             Attr('text',Varchar,    desc = 'Full text of a chapter')],
-    fks   = [FK('novel_id','Nov', id = True)]
-)
 
 Nov = Entity(
     name  = 'Nov',
@@ -18,8 +10,15 @@ Nov = Entity(
     id    = 'id',
     attrs = [Attr('aname',Varchar,          desc = 'Author name'),
              Attr('title',Varchar,id = True,desc = 'Book title '),
-             Attr('year',                   desc = 'Book publish date')]
-)
+             Attr('year',                   desc = 'Book publish date')])
+
+Chap = Entity(
+    name  = 'Chap',
+    desc  = "A chapter within a book",
+    id    = 'id',
+    attrs = [Attr('num',id = True,   desc = 'Chapter #'),
+             Attr('text',Varchar,    desc = 'Full text of a chapter')],
+    fks   = [FK('novel_id','Nov', id = True)])
 
 Readr = Entity(
     name  = 'Readr',
@@ -27,8 +26,7 @@ Readr = Entity(
     id    = 'id',
     attrs = [Attr('rname',Varchar,   desc = 'Reader name'),
              Attr('borrowed',Varchar,desc = 'Comma separated list of books reader has checked out of library')],
-    fks   = [FK('fav','Nov')]
-)
+    fks   = [FK('fav','Nov')])
 
 
 src = Schema('src',[Chap,Nov,Readr])
@@ -57,47 +55,42 @@ isrc = Instance({Readr['fav']      : {r1   : n1,  r2   : n2},
 ################################################################################
 # Alternative representation of similar domain
 ##############################################
-Chapter = Entity(
-    name  = 'Chapter',
-    desc  = "A chapter within a book", id='id',
-    attrs = [Attr('num',id=True, desc = 'Chapter #'),
-             Attr('n_words',     desc = 'Full text of a chapter'),
-             Attr('page_start',  desc = 'Staring page of chapter')],
-    fks  = [FK('novel','Novel', id = True)]
-)
-
 Novel = Entity(
     name  = 'Novel',
-    desc  = 'A book',
-    id    = 'id',
-    attrs = [Attr('title',Varchar,id = True,desc = 'Book title ')],
-    fks   = [FK('wrote','Author')]
-)
+    attrs = [Attr('title', Varchar, id = True, desc = 'Book title')],
+    fks   = [FK('wrote','Author')])
+
+Chapter = Entity(
+    name  = 'Chapter',
+    attrs = [Attr('num',       id=True, desc = 'Chapter #'),
+             Attr('n_words',            desc = 'Full text of a chapter'),
+             Attr('page_start',         desc = 'Staring page of chapter')],
+    fks  = [FK('novel','Novel', id = True)])
 
 Reader = Entity(
     name  = 'Reader',
-    desc  = 'A reader',
-    id    = 'id',
-    attrs = [Attr('readername',Varchar,id = True,desc = 'Reader name')],
+    attrs = [Attr('readername', Varchar, id = True, desc = 'Reader name')],
     fks   = [FK('favorite','Novel')])
-
-Borrow = Entity(
-    name  = 'Borrow',
-    desc  = 'A pair, (Novel,Reader), meaning that this novel was borrowed by this reader', id = 'id',
-    attrs = [Attr('total_len',desc = "Sum of letters in reader's name + book title (example derived property)")],
-    fks   = [FK('r', 'Reader', id = True), FK('n', 'Novel', id = True)])
 
 Author = Entity(
     name  = 'Author',
-    desc  = 'Authors, considered as an entity of their own', id = 'id',
+    desc  = 'Authors, considered as an entity of their own',
     attrs = [Attr('authorname', Varchar, id = True, desc = 'Name of author'),
-             Attr('born', desc = 'Author birth year')])
+             Attr('born',                           desc = 'Author birth year')])
 
 Library = Entity(
     name  = 'Library',
-    id    = 'id',
-    attrs = [Attr('libname',Varchar,id = True, desc = 'Name of library')],
+    attrs = [Attr('libname', Varchar, id = True, desc = 'Name of library')],
     fks   = [FK('most_popular','Novel')])
+
+Borrow = Entity(
+    name  = 'Borrow',
+    desc  = 'A pair, (Novel,Reader), meaning that this novel was borrowed by this reader',
+    attrs = [Attr('date',       Date, desc = 'Date novel was checked out by reader from the library'),
+             Attr('total_len',        desc = "Sum of letters in reader's name + book title (example derived property)")],
+    fks   = [FK('r', 'Reader',  id = True),
+             FK('n', 'Novel',   id = True),
+             FK('l', 'Library', id = True)])
 
 
 tar  = Schema('tar',[Chapter,Novel,Reader,Borrow,Author,Library])

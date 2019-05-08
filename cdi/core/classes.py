@@ -8,7 +8,8 @@ from typing import (Any, TYPE_CHECKING,
                     Optional as O,
                     Iterator as I,
                     Callable as C)
-from abc import ABCMeta,abstractmethod
+
+from abc       import ABCMeta,abstractmethod
 from itertools import chain
 
 # Internal
@@ -36,12 +37,12 @@ CQL primitives. Classes in this file should contain most of the 'business logic'
 class Rewrite(Base):
     '''Data structure for determining whether an attribute/FK should be renamed
     after a schema colimit'''
-    def __init__(self,ents:D[str,T[str,S[str]]]=None)->None:
+    def __init__(self, ents : D[str,T[str,S[str]]] = None) -> None:
         self.ents  = ents  or {}
 
     def __str__(self) -> str: return 'Rewrite(%d ents)'%len(self.ents)
 
-    def __call__(self,ent:str,attr:str=None)->str:
+    def __call__(self, ent : str, attr : str=None)->str:
         '''Prefix attr/fk name with modelname only if there is a collision'''
         # Case 1: renaming an entity
         if not attr:
@@ -51,7 +52,8 @@ class Rewrite(Base):
             or (attr not in self.ents[ent][1])):
             return attr
         else:
-            return ent + '_' + attr
+            # EDIT 5/6: NEVER PREFIX W/ ENTITY NAME
+            return attr # ent + '_' + attr
 
 class Attr(Base):
     '''Internal representation of an entity's attribute'''
@@ -285,6 +287,9 @@ class Path(Expr):
     def __str__(self) -> str:
         return ' . '.join(map(str,self.xs))#self.show(str)
 
+    def __len__(self) -> int:
+        return len(self.xs)
+
     def dtype(self) -> str:
         raise NotImplementedError
 
@@ -390,11 +395,11 @@ class Schema(Base):
 
     def fk_constraints(self,name:str,schema:'CQLSchema')->Constraints:
         cons = flatten([e.fk_constraints() for e in self.entities.values()])
-
         return Constraints(name=name,schema=schema,cons=cons)
 
-    def quotient(self,name:str,inst:Instance)->Quotient:
-        ents = {en:e.ids for en,e in self.entities.items()}
+    def quotient(self, name : str, inst : Instance) -> Quotient:
+        '''Quotients entities that have any identifying attributes/relations'''
+        ents = {en:e.ids for en,e in self.entities.items() if e.ids}
         return Quotient(name,inst,ents)
 
 
@@ -721,15 +726,43 @@ class Overlap(Base):
         fks  = {} # type: D[str,str]
         attrs= {} # type: D[str,str]
         for e in chain(self.ne1.values(),self.ne2.values()):
-            n = e.ent.name
-            p1 = n+'.'+prefix+n+'_'
-            p2 = prefix_+n+ '_'
-            fks.update({p1+f.name:p2+f.name for f in e.fks})
-            attrs.update({p1+a:p2+a for a in e.attrs})
+            n  = e.ent.name
+            p1 = n+'.'+prefix
+            p2 = prefix_
+            fks.update(  {p1+f.name:p2+f.name for f in e.fks})
+            attrs.update({p1+a     :p2+a      for a in e.attrs})
 
+        for e1n,e2n in sc.ent_eqs.items():
+            e1,e2 = self.s1[e2n],self.s2[e1n]
+            for an,a in e1.attrs.items():
+                if an in e2.attrs:
+                    attrs.update({e1n+'.'+prefix+an : prefix_+an})
+            for fn,f in e1.fks.items():
+                if fn in e2.fks:
+                    fks.update({e1n+'.'+prefix+fn : prefix_+fn})
 
-        args = dict(ents  = {},#ents,
+        args = dict(ents  = {},rm_attrs=[],rm_fks=[],
                     fks   = fks,
                     attrs = attrs,
-                    rm_attrs=[],rm_fks=[]) # type: dict
+                    ) # type: dict
         return SchemaColimitModify(name  = name,sc = sc,**args)
+
+    # def invert_patheq(self,pe:PathEQ)->PathEQ:
+    #     '''Express pathEQs of the target in the language of the src'''
+    #     p1,p2 = pe
+    #     d = {v:k for k,v in self.entities.items()}
+    #     def invert_path(p : Path) -> Path:
+    #         '''This needs more work, like modifying the names of the attrs/fks if needed'''
+    #         print(self)
+    #         def invert(x : U[FK,Attr,JLit]) -> U[FK,Attr,JLit]:
+    #             print(self)
+    #             if isinstance(x,Attr):
+    #                 if x.name == 'number':
+    #                     import pdb;pdb.set_trace()
+    #                 return Attr(x.name,d[x.obj],x.dtype,x.id)
+    #             elif isinstance(x,FK):
+    #                 return FK(x.name,d[x.src],d[x.tar],x.id)
+    #             else:
+    #                 return x
+    #         return Path(d[p.start],[invert(x) for x in p.xs])
+    #     return PathEQ(invert_path(p1),invert_path(p2))

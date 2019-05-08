@@ -18,29 +18,29 @@ typeside ty = literal {
 
 
     java_functions
-        cat : String,String -> String
-             = "return input[0] + input[1]"
-
-        makeStructJSON : String,String,String,String,Double,Double,Double,Double,Double,Double,Double,Double,Double -> Text
-             = "var MS = Java.type(\"str_utils.makeStructJSON\"); return MS.run(input[0],input[1],input[2],input[3],input[4],input[5],input[6],input[7],input[8],input[9],input[10],input[11],input[12]); "
-
-        matches : String,String -> Boolean
-             = "return input[0].matches(input[1])"
-
-        bigint_to_int : Bigint -> Integer
-                      = "return  input[0].intValue();"
-
         makeCompositionDict : String -> String
              = "var CD = Java.type(\"str_utils.makeCompositionDict\"); return CD.run(input[0]);"
 
-        decimal_to_float : Double -> Float
-                         = "return input[0].floatValue()"
+        matches : String,String -> Boolean
+             = "return input[0].matches(input[1])"
 
         gt   : Integer,Integer -> Boolean
              = "return input[0] > input[1]"
 
         countsubstr : String,String -> Integer
              = "return input[0].split(input[1], -1).length-1"
+
+        cat : String,String -> String
+             = "return input[0] + input[1]"
+
+        bigint_to_int : Bigint -> Integer
+                      = "return  input[0].intValue();"
+
+        makeStructJSON : String,String,String,String,Double,Double,Double,Double,Double,Double,Double,Double,Double -> Text
+             = "var MS = Java.type(\"str_utils.makeStructJSON\"); return MS.run(input[0],input[1],input[2],input[3],input[4],input[5],input[6],input[7],input[8],input[9],input[10],input[11],input[12]); "
+
+        decimal_to_float : Double -> Float
+                         = "return input[0].floatValue()"
 
         gteq : Double,Double -> Boolean
              = "return input[0] >= input[1]" }
@@ -86,44 +86,44 @@ schema src = literal : ty {
     foreign_keys
     //------
 
+        structure_id   : prototypes               -> structures 
         metadata_id    : calculations_meta_data   -> meta_data 
-        site_id        : atoms                    -> sites 
-        element_id     : atoms                    -> elements 
-        entry_id       : entries_meta_data        -> entries 
+        calculation_id : calculations_meta_data   -> calculations 
+        reference_id   : entries                  -> publications 
+        entry_id       : entries_element_set      -> entries 
+        fit_id         : fits_dft                 -> fits 
         calculation_id : fits_dft                 -> calculations 
+        author_id      : publications_author_set  -> authors 
+        element_id     : atoms                    -> elements 
+        metadata_id    : structures_meta_data     -> meta_data 
+        ligand_id      : hubbards                 -> elements 
+        site_id        : atoms                    -> sites 
+        composition_id : calculations             -> compositions 
+        calculation_id : calculations_element_set -> calculations 
         input_id       : calculations             -> structures 
         element_id     : hubbards                 -> elements 
-        composition_id : compositions_element_set -> compositions 
-        Element_id     : compositions_element_set -> elements 
-        ligand_id      : hubbards                 -> elements 
-        author_id      : publications_author_set  -> authors 
-        structure_id   : structures_element_set   -> structures 
-        element_id     : reference_energies       -> elements 
-        reference_id   : entries                  -> publications 
-        structure_id   : structures_meta_data     -> structures 
-        metadata_id    : structures_meta_data     -> meta_data 
-        reference_id   : publications_author_set  -> publications 
-        entry_id       : structures               -> entries 
-        element_id     : calculations_element_set -> elements 
-        spacegroup_id  : structures               -> spacegroups 
-        journal_id     : publications             -> journals 
-        composition_id : calculations             -> compositions 
-        composition_id : prototypes               -> compositions 
-        fit_id         : hubbard_corrections      -> fits 
         element_id     : hubbard_corrections      -> elements 
-        entry_id       : entries_element_set      -> entries 
-        calculation_id : calculations_element_set -> calculations 
-        element_id     : entries_element_set      -> elements 
-        fit_id         : fits_dft                 -> fits 
-        hubbard_id     : hubbard_corrections      -> hubbards 
-        fit_id         : reference_energies       -> fits 
-        output_id      : calculations             -> structures 
-        structure_id   : prototypes               -> structures 
-        calculation_id : calculations_meta_data   -> calculations 
-        metadata_id    : entries_meta_data        -> meta_data 
         entry_id       : calculations             -> entries 
-        structure_id   : atoms                    -> structures 
+        reference_id   : publications_author_set  -> publications 
+        output_id      : calculations             -> structures 
+        fit_id         : hubbard_corrections      -> fits 
         element_id     : structures_element_set   -> elements 
+        composition_id : prototypes               -> compositions 
+        metadata_id    : entries_meta_data        -> meta_data 
+        structure_id   : structures_meta_data     -> structures 
+        hubbard_id     : hubbard_corrections      -> hubbards 
+        Element_id     : compositions_element_set -> elements 
+        element_id     : entries_element_set      -> elements 
+        structure_id   : atoms                    -> structures 
+        entry_id       : structures               -> entries 
+        element_id     : reference_energies       -> elements 
+        fit_id         : reference_energies       -> fits 
+        structure_id   : structures_element_set   -> structures 
+        element_id     : calculations_element_set -> elements 
+        journal_id     : publications             -> journals 
+        composition_id : compositions_element_set -> compositions 
+        entry_id       : entries_meta_data        -> entries 
+        spacegroup_id  : structures               -> spacegroups 
         structure_id   : sites                    -> structures 
 
 
@@ -131,112 +131,112 @@ schema src = literal : ty {
     attributes
     //------
 
-        magmom_pa       : structures          -> Double 
-        name : fits                           -> String 
-        f_elec          : elements            -> Integer 
-        natoms          : calculations        -> Integer 
-        z3              : structures          -> Double 
-        group           : elements            -> Integer 
-        d_elec          : elements            -> Integer 
-        page_last       : publications        -> Integer 
-        stability       : entries             -> Double 
-        natoms          : structures          -> Integer 
-        path : entries                        -> String 
-        generic : compositions                -> String 
-        year            : publications        -> Integer 
-        settings        : calculations        -> Text 
-        period          : elements            -> Integer 
-        nsteps          : calculations        -> Integer 
-        b               : structures          -> Double 
-        value           : hubbard_corrections -> Double 
-        z2              : structures          -> Double 
-        comp : structures                     -> String 
-        user : calculations                   -> String 
-        nsites          : structures          -> Integer 
-        energy_pa       : structures          -> Double 
-        attempt         : calculations        -> Integer 
-        number          : spacegroups         -> Integer 
-        convention : hubbards                 -> String 
-        ntypes          : compositions        -> Integer 
-        path : calculations                   -> String 
-        schoenflies : spacegroups             -> String 
-        z               : sites               -> Double 
-        x               : atoms               -> Double 
-        duplicate_of_id : entries             -> Integer 
-        x2              : structures          -> Double 
-        meidema         : compositions        -> Double 
-        label : entries                       -> String 
-        y3              : structures          -> Double 
-        pearson : spacegroups                 -> String 
-        xs : structures                       -> String 
-        magmom          : atoms               -> Double 
-        y1              : structures          -> Double 
-        x               : sites               -> Double 
-        energy          : calculations        -> Double 
-        band_gap        : calculations        -> Double 
-        label : structures                    -> String 
-        converged       : calculations        -> Boolean 
-        type : meta_data                      -> String 
-        measured        : structures          -> Boolean 
-        z               : elements            -> Integer 
-        volume          : publications        -> Integer 
-        lattice_system : spacegroups          -> String 
-        ntypes          : structures          -> Integer 
-        formula : compositions                -> String 
-        y               : atoms               -> Double 
-        magmom          : structures          -> Double 
-        mass            : elements            -> Double 
-        first : authors                       -> String 
-        specific_heat   : elements            -> Double 
-        a               : structures          -> Double 
-        xc : calculations                     -> String 
-        s_elec          : elements            -> Integer 
-        hm : spacegroups                      -> String 
-        delta_e         : structures          -> Double 
-        job_name : calculations               -> String 
-        volume          : structures          -> Double 
-        dftcode : calculations                -> String 
-        y2              : structures          -> Double 
-        runtime         : calculations        -> Double 
-        x3              : structures          -> Double 
-        label : calculations                  -> String 
-        system_type : structures              -> String 
-        symbol : elements                     -> String 
-        configuration : calculations          -> String 
-        title           : publications        -> Text 
-        z1              : structures          -> Double 
-        pw              : calculations        -> Double 
-        charge          : atoms               -> Double 
-        psp : calculations                    -> String 
-        hall : spacegroups                    -> String 
-        ys : structures                       -> String 
-        u               : hubbards            -> Double 
-        ox              : hubbards            -> Double 
-        magmom          : calculations        -> Double 
-        bigind          : atoms               -> Bigint 
-        z               : atoms               -> Double 
-        natoms          : entries             -> Integer 
-        meta_stability  : structures          -> Double 
-        value           : meta_data           -> Text 
-        last : authors                        -> String 
-        page_first      : publications        -> Integer 
-        c               : structures          -> Double 
-        l               : hubbards            -> Integer 
-        centrosymmetric : spacegroups         -> Boolean 
-        x1              : structures          -> Double 
-        name            : journals            -> Text 
-        energy          : structures          -> Double 
-        fx              : atoms               -> Double 
-        code : journals                       -> String 
-        delta_e         : entries             -> Double 
-        zs : structures                       -> String 
-        value           : reference_energies  -> Double 
-        y               : sites               -> Double 
-        volume_pa       : structures          -> Double 
         p_elec          : elements            -> Integer 
+        code : journals                       -> String 
+        specific_heat   : elements            -> Double 
+        x3              : structures          -> Double 
+        generic : compositions                -> String 
+        delta_e         : structures          -> Double 
+        natoms          : calculations        -> Integer 
+        measured        : structures          -> Boolean 
+        nsteps          : calculations        -> Integer 
+        s_elec          : elements            -> Integer 
+        energy          : structures          -> Double 
+        bigind          : atoms               -> Bigint 
+        natoms          : structures          -> Integer 
+        pw              : calculations        -> Double 
+        z3              : structures          -> Double 
+        xs : structures                       -> String 
+        magmom          : structures          -> Double 
+        z2              : structures          -> Double 
+        label : calculations                  -> String 
+        u               : hubbards            -> Double 
+        schoenflies : spacegroups             -> String 
+        title           : publications        -> Text 
+        magmom_pa       : structures          -> Double 
+        y               : atoms               -> Double 
+        user : calculations                   -> String 
+        c               : structures          -> Double 
+        ox              : hubbards            -> Double 
+        delta_e         : entries             -> Double 
+        path : calculations                   -> String 
+        pearson : spacegroups                 -> String 
+        charge          : atoms               -> Double 
+        runtime         : calculations        -> Double 
+        duplicate_of_id : entries             -> Integer 
+        formula : compositions                -> String 
+        settings        : calculations        -> Text 
+        number          : spacegroups         -> Integer 
+        x               : atoms               -> Double 
+        z               : elements            -> Integer 
+        a               : structures          -> Double 
+        last : authors                        -> String 
+        year            : publications        -> Integer 
+        y2              : structures          -> Double 
+        volume          : structures          -> Double 
+        psp : calculations                    -> String 
+        b               : structures          -> Double 
+        ys : structures                       -> String 
+        f_elec          : elements            -> Integer 
+        name            : journals            -> Text 
+        z               : atoms               -> Double 
+        convention : hubbards                 -> String 
+        lattice_system : spacegroups          -> String 
+        page_first      : publications        -> Integer 
+        value           : hubbard_corrections -> Double 
+        label : entries                       -> String 
+        path : entries                        -> String 
+        meidema         : compositions        -> Double 
+        z1              : structures          -> Double 
+        energy          : calculations        -> Double 
+        value           : meta_data           -> Text 
+        period          : elements            -> Integer 
+        first : authors                       -> String 
+        band_gap        : calculations        -> Double 
+        ntypes          : compositions        -> Integer 
+        ntypes          : structures          -> Integer 
+        meta_stability  : structures          -> Double 
+        comp : structures                     -> String 
+        xc : calculations                     -> String 
+        fx              : atoms               -> Double 
         name : elements                       -> String 
-        fz              : atoms               -> Double 
         fy              : atoms               -> Double 
+        y3              : structures          -> Double 
+        hall : spacegroups                    -> String 
+        volume          : publications        -> Integer 
+        d_elec          : elements            -> Integer 
+        value           : reference_energies  -> Double 
+        type : meta_data                      -> String 
+        x               : sites               -> Double 
+        centrosymmetric : spacegroups         -> Boolean 
+        name : fits                           -> String 
+        magmom          : calculations        -> Double 
+        symbol : elements                     -> String 
+        attempt         : calculations        -> Integer 
+        x1              : structures          -> Double 
+        z               : sites               -> Double 
+        energy_pa       : structures          -> Double 
+        converged       : calculations        -> Boolean 
+        group           : elements            -> Integer 
+        y1              : structures          -> Double 
+        zs : structures                       -> String 
+        dftcode : calculations                -> String 
+        label : structures                    -> String 
+        hm : spacegroups                      -> String 
+        volume_pa       : structures          -> Double 
+        l               : hubbards            -> Integer 
+        fz              : atoms               -> Double 
+        page_last       : publications        -> Integer 
+        nsites          : structures          -> Integer 
+        configuration : calculations          -> String 
+        x2              : structures          -> Double 
+        magmom          : atoms               -> Double 
+        stability       : entries             -> Double 
+        mass            : elements            -> Double 
+        system_type : structures              -> String 
+        y               : sites               -> Double 
+        natoms          : entries             -> Integer 
+        job_name : calculations               -> String 
 
  
 }
@@ -262,17 +262,17 @@ schema tar = literal : ty {
     foreign_keys
     //------
 
+        struct  : job                -> struct 
+        species : struct             -> species 
+        struct  : atom               -> struct 
+        element : struct_composition -> element 
+        struct  : bulk               -> struct 
+        struct  : molecule           -> struct 
+        struct  : struct_composition -> struct 
+        struct  : surface            -> struct 
+        calc    : job                -> calc 
         element : atom               -> element 
         cell    : struct             -> cell 
-        struct  : struct_composition -> struct 
-        struct  : molecule           -> struct 
-        struct  : job                -> struct 
-        struct  : atom               -> struct 
-        calc    : job                -> calc 
-        species : struct             -> species 
-        struct  : surface            -> struct 
-        struct  : bulk               -> struct 
-        element : struct_composition -> element 
 
     path_equations
     //------
@@ -282,55 +282,137 @@ schema tar = literal : ty {
     attributes
     //------
 
-        xc : calc                          -> String 
-        stordir : job                      -> String 
-        c1            : cell               -> Double 
-        raw           : struct             -> Text 
-        system_type : struct               -> String 
-        b3            : cell               -> Double 
-        a2            : cell               -> Double 
-        name : element                     -> String 
-        symmetry : species                 -> String 
-        b             : cell               -> Double 
-        psp : calc                         -> String 
-        x             : atom               -> Double 
-        c3            : cell               -> Double 
-        phase : species                    -> String 
         y             : atom               -> Double 
-        energy        : job                -> Double 
-        pointgroup : molecule              -> String 
-        a             : cell               -> Double 
-        atomic_number : element            -> Integer 
-        a3            : cell               -> Double 
-        z             : atom               -> Double 
-        number        : atom               -> Integer 
+        stordir : job                      -> String 
+        b1            : cell               -> Double 
+        a1            : cell               -> Double 
+        facet : surface                    -> String 
+        b             : cell               -> Double 
+        phase : species                    -> String 
+        c1            : cell               -> Double 
         pw            : calc               -> Double 
+        n_atoms       : struct             -> Integer 
+        a2            : cell               -> Double 
+        pointgroup : molecule              -> String 
+        energy        : job                -> Double 
+        raw           : struct             -> Text 
+        c3            : cell               -> Double 
+        b3            : cell               -> Double 
+        psp : calc                         -> String 
+        c2            : cell               -> Double 
+        xc : calc                          -> String 
+        atomic_number : element            -> Integer 
+        a             : cell               -> Double 
+        symmetry : species                 -> String 
+        user : job                         -> String 
+        ind           : atom               -> Integer 
+        z             : atom               -> Double 
+        a3            : cell               -> Double 
         num           : struct_composition -> Integer 
         composition : struct               -> String 
+        volume        : cell               -> Double 
+        c             : cell               -> Double 
+        number        : atom               -> Integer 
         vacuum        : surface            -> Double 
+        x             : atom               -> Double 
         formula : species                  -> String 
-        ind           : atom               -> Integer 
         b2            : cell               -> Double 
         dftcode : calc                     -> String 
-        symbol : element                   -> String 
-        n_atoms       : struct             -> Integer 
-        c             : cell               -> Double 
-        a1            : cell               -> Double 
+        system_type : struct               -> String 
+        name : element                     -> String 
         job_name : job                     -> String 
-        facet : surface                    -> String 
-        c2            : cell               -> Double 
-        volume        : cell               -> Double 
-        user : job                         -> String 
-        b1            : cell               -> Double 
+        symbol : element                   -> String 
 
     observation_equations
     //------
 
-        forall s0 : surface . system_type(s0.struct) = "bulk"@String
-        forall b0 : bulk . system_type(b0.struct) = "bulk"@String
-        forall m0 : molecule . system_type(m0.struct) = "molecule"@String
         forall st0 : struct . phase(st0.species) = st0.system_type
-        forall a0 : atom . gteq(a0.x,"0.000"@Double) = "true"@Boolean 
+        forall a0 : atom . gteq(a0.x,"0.000"@Double) = "true"@Boolean
+        forall m0 : molecule . system_type(m0.struct) = "molecule"@String
+        forall b0 : bulk . system_type(b0.struct) = "bulk"@String
+        forall s0 : surface . system_type(s0.struct) = "bulk"@String 
+}
+
+
+schema tar_nc = literal : ty { 
+
+    entities
+    //------
+
+        job
+        element
+        species
+        struct
+        cell
+        atom
+        calc
+        struct_composition
+        bulk
+        molecule
+        surface
+
+    foreign_keys
+    //------
+
+        struct  : job                -> struct 
+        species : struct             -> species 
+        struct  : atom               -> struct 
+        element : struct_composition -> element 
+        struct  : bulk               -> struct 
+        struct  : molecule           -> struct 
+        struct  : struct_composition -> struct 
+        struct  : surface            -> struct 
+        calc    : job                -> calc 
+        element : atom               -> element 
+        cell    : struct             -> cell 
+
+
+
+    attributes
+    //------
+
+        y             : atom               -> Double 
+        stordir : job                      -> String 
+        b1            : cell               -> Double 
+        a1            : cell               -> Double 
+        facet : surface                    -> String 
+        b             : cell               -> Double 
+        phase : species                    -> String 
+        c1            : cell               -> Double 
+        pw            : calc               -> Double 
+        n_atoms       : struct             -> Integer 
+        a2            : cell               -> Double 
+        pointgroup : molecule              -> String 
+        energy        : job                -> Double 
+        raw           : struct             -> Text 
+        c3            : cell               -> Double 
+        b3            : cell               -> Double 
+        psp : calc                         -> String 
+        c2            : cell               -> Double 
+        xc : calc                          -> String 
+        atomic_number : element            -> Integer 
+        a             : cell               -> Double 
+        symmetry : species                 -> String 
+        user : job                         -> String 
+        ind           : atom               -> Integer 
+        z             : atom               -> Double 
+        a3            : cell               -> Double 
+        num           : struct_composition -> Integer 
+        composition : struct               -> String 
+        volume        : cell               -> Double 
+        c             : cell               -> Double 
+        number        : atom               -> Integer 
+        vacuum        : surface            -> Double 
+        x             : atom               -> Double 
+        formula : species                  -> String 
+        b2            : cell               -> Double 
+        dftcode : calc                     -> String 
+        system_type : struct               -> String 
+        name : element                     -> String 
+        job_name : job                     -> String 
+        symbol : element                   -> String 
+
+ 
 }
 
 
@@ -349,41 +431,41 @@ schema inter = literal : ty {
     foreign_keys
     //------
 
-        element_id   : atoms              -> elements 
-        struct       : struct_composition -> structures 
-        structure_id : atoms              -> structures 
         element      : struct_composition -> elements 
         output_id    : calculations       -> structures 
+        struct       : struct_composition -> structures 
+        element_id   : atoms              -> elements 
         struct       : bulk               -> structures 
+        structure_id : atoms              -> structures 
 
 
 
     attributes
     //------
 
-        z2     : structures         -> Double 
-        symbol : elements           -> String 
-        z1     : structures         -> Double 
-        raw    : structures         -> Text 
-        z      : elements           -> Integer 
-        ind    : atoms              -> Integer 
-        z      : atoms              -> Double 
-        z3     : structures         -> Double 
-        path : calculations         -> String 
         y      : atoms              -> Double 
-        composition : structures    -> String 
         x1     : structures         -> Double 
-        natoms : structures         -> Integer 
-        x      : atoms              -> Double 
-        x2     : structures         -> Double 
-        y3     : structures         -> Double 
-        volume : structures         -> Double 
-        y2     : structures         -> Double 
         num    : struct_composition -> Integer 
-        x3     : structures         -> Double 
-        name : elements             -> String 
-        y1     : structures         -> Double 
+        z1     : structures         -> Double 
+        path : calculations         -> String 
         energy : calculations       -> Double 
+        x3     : structures         -> Double 
+        y1     : structures         -> Double 
+        x      : atoms              -> Double 
+        z      : elements           -> Integer 
+        natoms : structures         -> Integer 
+        raw    : structures         -> Text 
+        name : elements             -> String 
+        z3     : structures         -> Double 
+        ind    : atoms              -> Integer 
+        y3     : structures         -> Double 
+        composition : structures    -> String 
+        y2     : structures         -> Double 
+        z2     : structures         -> Double 
+        volume : structures         -> Double 
+        x2     : structures         -> Double 
+        z      : atoms              -> Double 
+        symbol : elements           -> String 
 
  
 }
@@ -433,138 +515,138 @@ schema s_src_core = literal : ty {
     attributes
     //------
 
-        uid : spacegroups                     -> String 
-        f_elec          : elements            -> Integer 
-        natoms          : calculations        -> Integer 
-        z3              : structures          -> Double 
-        page_last       : publications        -> Integer 
-        uid : entries_meta_data               -> String 
-        stability       : entries             -> Double 
-        path : entries                        -> String 
-        generic : compositions                -> String 
-        period          : elements            -> Integer 
-        nsteps          : calculations        -> Integer 
-        b               : structures          -> Double 
-        value           : hubbard_corrections -> Double 
-        energy_pa       : structures          -> Double 
-        number          : spacegroups         -> Integer 
-        convention : hubbards                 -> String 
-        ntypes          : compositions        -> Integer 
-        schoenflies : spacegroups             -> String 
-        z               : sites               -> Double 
-        meidema         : compositions        -> Double 
-        label : entries                       -> String 
-        uid : reference_energies              -> String 
-        xs : structures                       -> String 
-        uid : fits                            -> String 
-        y1              : structures          -> Double 
-        x               : sites               -> Double 
-        converged       : calculations        -> Boolean 
-        uid : calculations_meta_data          -> String 
-        measured        : structures          -> Boolean 
-        z               : elements            -> Integer 
-        y               : atoms               -> Double 
-        mass            : elements            -> Double 
-        first : authors                       -> String 
+        code : journals                       -> String 
         specific_heat   : elements            -> Double 
-        a               : structures          -> Double 
-        xc : calculations                     -> String 
-        s_elec          : elements            -> Integer 
-        uid : fits_dft                        -> String 
-        y2              : structures          -> Double 
-        uid : calculations_element_set        -> String 
-        system_type : structures              -> String 
-        symbol : elements                     -> String 
-        configuration : calculations          -> String 
-        pw              : calculations        -> Double 
-        charge          : atoms               -> Double 
-        hall : spacegroups                    -> String 
-        ys : structures                       -> String 
-        uid : atoms                           -> String 
-        ox              : hubbards            -> Double 
-        z               : atoms               -> Double 
-        uid : structures_element_set          -> String 
-        meta_stability  : structures          -> Double 
-        value           : meta_data           -> Text 
-        last : authors                        -> String 
-        page_first      : publications        -> Integer 
-        delta_e         : entries             -> Double 
-        zs : structures                       -> String 
-        p_elec          : elements            -> Integer 
-        uid : elements                        -> String 
-        fy              : atoms               -> Double 
-        magmom_pa       : structures          -> Double 
         uid : authors                         -> String 
-        name : fits                           -> String 
-        uid : sites                           -> String 
-        uid : compositions_element_set        -> String 
-        group           : elements            -> Integer 
-        d_elec          : elements            -> Integer 
-        uid : structures_meta_data            -> String 
-        natoms          : structures          -> Integer 
+        uid : publications                    -> String 
         uid : prototypes                      -> String 
-        settings        : calculations        -> Text 
+        x3              : structures          -> Double 
+        generic : compositions                -> String 
+        delta_e         : structures          -> Double 
+        nsteps          : calculations        -> Integer 
+        bigind          : atoms               -> Bigint 
+        natoms          : structures          -> Integer 
+        xs : structures                       -> String 
+        magmom          : structures          -> Double 
         z2              : structures          -> Double 
-        comp : structures                     -> String 
-        name : elements                       -> String 
+        label : calculations                  -> String 
+        u               : hubbards            -> Double 
+        uid : elements                        -> String 
         user : calculations                   -> String 
+        c               : structures          -> Double 
+        uid : structures_element_set          -> String 
+        uid : spacegroups                     -> String 
+        delta_e         : entries             -> Double 
+        uid : calculations_element_set        -> String 
+        path : calculations                   -> String 
+        runtime         : calculations        -> Double 
+        duplicate_of_id : entries             -> Integer 
+        settings        : calculations        -> Text 
+        x               : atoms               -> Double 
+        z               : elements            -> Integer 
+        a               : structures          -> Double 
+        y2              : structures          -> Double 
+        volume          : structures          -> Double 
+        psp : calculations                    -> String 
+        ys : structures                       -> String 
+        name            : journals            -> Text 
+        z               : atoms               -> Double 
+        convention : hubbards                 -> String 
+        lattice_system : spacegroups          -> String 
+        meidema         : compositions        -> Double 
+        uid : compositions_element_set        -> String 
+        energy          : calculations        -> Double 
+        value           : meta_data           -> Text 
+        uid : sites                           -> String 
+        period          : elements            -> Integer 
+        uid : entries_element_set             -> String 
+        ntypes          : compositions        -> Integer 
+        uid : entries                         -> String 
+        xc : calculations                     -> String 
+        fx              : atoms               -> Double 
+        name : elements                       -> String 
+        fy              : atoms               -> Double 
+        y3              : structures          -> Double 
+        d_elec          : elements            -> Integer 
+        x               : sites               -> Double 
+        centrosymmetric : spacegroups         -> Boolean 
+        name : fits                           -> String 
+        uid : structures_meta_data            -> String 
+        symbol : elements                     -> String 
+        attempt         : calculations        -> Integer 
+        group           : elements            -> Integer 
+        y1              : structures          -> Double 
+        zs : structures                       -> String 
+        uid : structures                      -> String 
+        label : structures                    -> String 
+        hm : spacegroups                      -> String 
+        uid : fits                            -> String 
+        volume_pa       : structures          -> Double 
+        l               : hubbards            -> Integer 
+        page_last       : publications        -> Integer 
+        configuration : calculations          -> String 
+        x2              : structures          -> Double 
+        magmom          : atoms               -> Double 
+        stability       : entries             -> Double 
+        system_type : structures              -> String 
+        y               : sites               -> Double 
+        natoms          : entries             -> Integer 
+        band_gap        : calculations        -> Double 
+        p_elec          : elements            -> Integer 
+        natoms          : calculations        -> Integer 
+        measured        : structures          -> Boolean 
+        s_elec          : elements            -> Integer 
+        energy          : structures          -> Double 
+        pw              : calculations        -> Double 
+        uid : fits_dft                        -> String 
+        z3              : structures          -> Double 
+        schoenflies : spacegroups             -> String 
+        title           : publications        -> Text 
+        magmom_pa       : structures          -> Double 
+        y               : atoms               -> Double 
+        ox              : hubbards            -> Double 
+        pearson : spacegroups                 -> String 
+        uid : publications_author_set         -> String 
+        charge          : atoms               -> Double 
+        uid : entries_meta_data               -> String 
+        uid : calculations_meta_data          -> String 
+        formula : compositions                -> String 
+        number          : spacegroups         -> Integer 
+        last : authors                        -> String 
+        year            : publications        -> Integer 
+        b               : structures          -> Double 
+        f_elec          : elements            -> Integer 
+        uid : atoms                           -> String 
+        uid : compositions                    -> String 
+        page_first      : publications        -> Integer 
+        value           : hubbard_corrections -> Double 
+        label : entries                       -> String 
+        path : entries                        -> String 
+        z1              : structures          -> Double 
+        first : authors                       -> String 
+        ntypes          : structures          -> Integer 
+        meta_stability  : structures          -> Double 
+        comp : structures                     -> String 
+        hall : spacegroups                    -> String 
+        volume          : publications        -> Integer 
+        value           : reference_energies  -> Double 
+        type : meta_data                      -> String 
+        uid : hubbard_corrections             -> String 
+        x1              : structures          -> Double 
+        z               : sites               -> Double 
+        energy_pa       : structures          -> Double 
+        converged       : calculations        -> Boolean 
+        uid : meta_data                       -> String 
+        uid : hubbards                        -> String 
+        dftcode : calculations                -> String 
+        uid : calculations                    -> String 
+        fz              : atoms               -> Double 
         uid : journals                        -> String 
         nsites          : structures          -> Integer 
-        uid : structures                      -> String 
-        attempt         : calculations        -> Integer 
-        uid : hubbard_corrections             -> String 
-        uid : publications_author_set         -> String 
-        uid : calculations                    -> String 
-        uid : meta_data                       -> String 
-        path : calculations                   -> String 
-        x               : atoms               -> Double 
-        duplicate_of_id : entries             -> Integer 
-        x2              : structures          -> Double 
-        y3              : structures          -> Double 
-        pearson : spacegroups                 -> String 
-        magmom          : atoms               -> Double 
-        energy          : calculations        -> Double 
-        band_gap        : calculations        -> Double 
-        label : structures                    -> String 
-        type : meta_data                      -> String 
-        volume          : publications        -> Integer 
-        lattice_system : spacegroups          -> String 
-        ntypes          : structures          -> Integer 
-        formula : compositions                -> String 
-        magmom          : structures          -> Double 
-        hm : spacegroups                      -> String 
-        delta_e         : structures          -> Double 
-        job_name : calculations               -> String 
-        volume          : structures          -> Double 
-        dftcode : calculations                -> String 
-        x3              : structures          -> Double 
-        uid : hubbards                        -> String 
-        label : calculations                  -> String 
-        title           : publications        -> Text 
-        z1              : structures          -> Double 
-        uid : publications                    -> String 
-        psp : calculations                    -> String 
-        uid : entries_element_set             -> String 
-        u               : hubbards            -> Double 
-        uid : compositions                    -> String 
-        uid : entries                         -> String 
+        mass            : elements            -> Double 
         magmom          : calculations        -> Double 
-        bigind          : atoms               -> Bigint 
-        natoms          : entries             -> Integer 
-        c               : structures          -> Double 
-        l               : hubbards            -> Integer 
-        centrosymmetric : spacegroups         -> Boolean 
-        x1              : structures          -> Double 
-        name            : journals            -> Text 
-        energy          : structures          -> Double 
-        fx              : atoms               -> Double 
-        code : journals                       -> String 
-        value           : reference_energies  -> Double 
-        y               : sites               -> Double 
-        volume_pa       : structures          -> Double 
-        year            : publications        -> Integer 
-        fz              : atoms               -> Double 
-        runtime         : calculations        -> Double 
+        uid : reference_energies              -> String 
+        job_name : calculations               -> String 
 
  
 }
@@ -609,177 +691,177 @@ schema s_src_raw = literal : ty {
     attributes
     //------
 
-        uid : spacegroups                         -> String 
-        f_elec          : elements                -> Integer 
-        natoms          : calculations            -> Integer 
-        z3              : structures              -> Double 
-        page_last       : publications            -> Integer 
-        uid : entries_meta_data                   -> String 
-        stability       : entries                 -> Double 
-        journal_id : publications                 -> String 
-        path : entries                            -> String 
-        generic : compositions                    -> String 
-        element_id : entries_element_set          -> String 
-        reference_id : publications_author_set    -> String 
-        period          : elements                -> Integer 
-        nsteps          : calculations            -> Integer 
-        b               : structures              -> Double 
-        value           : hubbard_corrections     -> Double 
-        energy_pa       : structures              -> Double 
-        number          : spacegroups             -> Integer 
-        convention : hubbards                     -> String 
-        ntypes          : compositions            -> Integer 
-        schoenflies : spacegroups                 -> String 
-        z               : sites                   -> Double 
-        meidema         : compositions            -> Double 
-        label : entries                           -> String 
-        uid : reference_energies                  -> String 
-        xs : structures                           -> String 
-        uid : fits                                -> String 
-        y1              : structures              -> Double 
-        author_id : publications_author_set       -> String 
-        x               : sites                   -> Double 
-        converged       : calculations            -> Boolean 
-        uid : calculations_meta_data              -> String 
-        measured        : structures              -> Boolean 
-        z               : elements                -> Integer 
-        element_id : reference_energies           -> String 
-        metadata_id : calculations_meta_data      -> String 
-        y               : atoms                   -> Double 
-        reference_id : entries                    -> String 
-        mass            : elements                -> Double 
-        first : authors                           -> String 
+        code : journals                           -> String 
         specific_heat   : elements                -> Double 
-        a               : structures              -> Double 
-        xc : calculations                         -> String 
-        s_elec          : elements                -> Integer 
-        element_id : hubbards                     -> String 
-        uid : fits_dft                            -> String 
-        element_id : atoms                        -> String 
-        y2              : structures              -> Double 
-        element_id : calculations_element_set     -> String 
-        uid : calculations_element_set            -> String 
-        structure_id : atoms                      -> String 
-        system_type : structures                  -> String 
-        symbol : elements                         -> String 
-        configuration : calculations              -> String 
-        pw              : calculations            -> Double 
-        charge          : atoms                   -> Double 
-        calculation_id : calculations_meta_data   -> String 
-        hall : spacegroups                        -> String 
-        metadata_id : structures_meta_data        -> String 
-        ys : structures                           -> String 
-        uid : atoms                               -> String 
-        ox              : hubbards                -> Double 
-        entry_id : entries_element_set            -> String 
-        z               : atoms                   -> Double 
-        uid : structures_element_set              -> String 
-        meta_stability  : structures              -> Double 
-        value           : meta_data               -> Text 
-        last : authors                            -> String 
-        page_first      : publications            -> Integer 
-        element_id : hubbard_corrections          -> String 
-        calculation_id : calculations_element_set -> String 
-        delta_e         : entries                 -> Double 
-        zs : structures                           -> String 
-        composition_id : prototypes               -> String 
-        p_elec          : elements                -> Integer 
-        uid : elements                            -> String 
-        fy              : atoms                   -> Double 
-        magmom_pa       : structures              -> Double 
-        element_id : structures_element_set       -> String 
         uid : authors                             -> String 
-        name : fits                               -> String 
-        uid : sites                               -> String 
-        uid : compositions_element_set            -> String 
-        group           : elements                -> Integer 
-        d_elec          : elements                -> Integer 
-        uid : structures_meta_data                -> String 
-        natoms          : structures              -> Integer 
+        uid : publications                        -> String 
         uid : prototypes                          -> String 
-        structure_id : prototypes                 -> String 
-        spacegroup_id : structures                -> String 
-        settings        : calculations            -> Text 
+        x3              : structures              -> Double 
+        generic : compositions                    -> String 
+        delta_e         : structures              -> Double 
+        nsteps          : calculations            -> Integer 
+        entry_id : calculations                   -> String 
+        calculation_id : calculations_element_set -> String 
+        element_id : hubbards                     -> String 
+        bigind          : atoms                   -> Bigint 
+        natoms          : structures              -> Integer 
+        xs : structures                           -> String 
+        magmom          : structures              -> Double 
         z2              : structures              -> Double 
-        comp : structures                         -> String 
-        name : elements                           -> String 
+        label : calculations                      -> String 
+        u               : hubbards                -> Double 
+        entry_id : structures                     -> String 
+        uid : elements                            -> String 
         user : calculations                       -> String 
+        c               : structures              -> Double 
+        uid : structures_element_set              -> String 
+        uid : spacegroups                         -> String 
+        delta_e         : entries                 -> Double 
+        uid : calculations_element_set            -> String 
+        path : calculations                       -> String 
+        runtime         : calculations            -> Double 
+        entry_id : entries_meta_data              -> String 
+        duplicate_of_id : entries                 -> Integer 
+        metadata_id : entries_meta_data           -> String 
+        settings        : calculations            -> Text 
+        author_id : publications_author_set       -> String 
+        x               : atoms                   -> Double 
+        z               : elements                -> Integer 
+        a               : structures              -> Double 
+        calculation_id : fits_dft                 -> String 
+        Element_id : compositions_element_set     -> String 
+        y2              : structures              -> Double 
+        volume          : structures              -> Double 
+        psp : calculations                        -> String 
+        ys : structures                           -> String 
+        structure_id : structures_element_set     -> String 
+        name            : journals                -> Text 
+        z               : atoms                   -> Double 
+        convention : hubbards                     -> String 
+        entry_id : entries_element_set            -> String 
+        lattice_system : spacegroups              -> String 
+        meidema         : compositions            -> Double 
+        uid : compositions_element_set            -> String 
+        energy          : calculations            -> Double 
+        value           : meta_data               -> Text 
+        uid : sites                               -> String 
+        period          : elements                -> Integer 
+        uid : entries_element_set                 -> String 
+        ntypes          : compositions            -> Integer 
+        uid : entries                             -> String 
+        xc : calculations                         -> String 
+        spacegroup_id : structures                -> String 
+        fx              : atoms                   -> Double 
+        calculation_id : calculations_meta_data   -> String 
+        name : elements                           -> String 
+        fy              : atoms                   -> Double 
+        y3              : structures              -> Double 
+        d_elec          : elements                -> Integer 
+        x               : sites                   -> Double 
+        centrosymmetric : spacegroups             -> Boolean 
+        name : fits                               -> String 
+        uid : structures_meta_data                -> String 
+        symbol : elements                         -> String 
+        attempt         : calculations            -> Integer 
+        metadata_id : calculations_meta_data      -> String 
+        reference_id : publications_author_set    -> String 
+        ligand_id : hubbards                      -> String 
+        group           : elements                -> Integer 
+        y1              : structures              -> Double 
+        zs : structures                           -> String 
+        uid : structures                          -> String 
+        label : structures                        -> String 
+        hm : spacegroups                          -> String 
+        uid : fits                                -> String 
+        volume_pa       : structures              -> Double 
+        element_id : hubbard_corrections          -> String 
+        l               : hubbards                -> Integer 
+        page_last       : publications            -> Integer 
+        configuration : calculations              -> String 
+        structure_id : structures_meta_data       -> String 
+        x2              : structures              -> Double 
+        magmom          : atoms                   -> Double 
+        stability       : entries                 -> Double 
+        reference_id : entries                    -> String 
+        system_type : structures                  -> String 
+        y               : sites                   -> Double 
+        input_id : calculations                   -> String 
+        natoms          : entries                 -> Integer 
+        band_gap        : calculations            -> Double 
+        p_elec          : elements                -> Integer 
+        element_id : entries_element_set          -> String 
+        fit_id : reference_energies               -> String 
+        natoms          : calculations            -> Integer 
+        hubbard_id : hubbard_corrections          -> String 
+        measured        : structures              -> Boolean 
+        s_elec          : elements                -> Integer 
+        energy          : structures              -> Double 
+        element_id : atoms                        -> String 
+        pw              : calculations            -> Double 
+        metadata_id : structures_meta_data        -> String 
+        uid : fits_dft                            -> String 
+        z3              : structures              -> Double 
+        schoenflies : spacegroups                 -> String 
+        title           : publications            -> Text 
+        composition_id : compositions_element_set -> String 
+        magmom_pa       : structures              -> Double 
+        y               : atoms                   -> Double 
+        ox              : hubbards                -> Double 
+        fit_id : fits_dft                         -> String 
+        pearson : spacegroups                     -> String 
+        uid : publications_author_set             -> String 
+        charge          : atoms                   -> Double 
+        uid : entries_meta_data                   -> String 
+        uid : calculations_meta_data              -> String 
+        structure_id : prototypes                 -> String 
+        formula : compositions                    -> String 
+        number          : spacegroups             -> Integer 
+        structure_id : atoms                      -> String 
+        site_id : atoms                           -> String 
+        last : authors                            -> String 
+        year            : publications            -> Integer 
+        journal_id : publications                 -> String 
+        b               : structures              -> Double 
+        f_elec          : elements                -> Integer 
+        uid : atoms                               -> String 
+        uid : compositions                        -> String 
+        page_first      : publications            -> Integer 
+        value           : hubbard_corrections     -> Double 
+        label : entries                           -> String 
+        path : entries                            -> String 
+        element_id : calculations_element_set     -> String 
+        z1              : structures              -> Double 
+        structure_id : sites                      -> String 
+        composition_id : calculations             -> String 
+        first : authors                           -> String 
+        output_id : calculations                  -> String 
+        ntypes          : structures              -> Integer 
+        meta_stability  : structures              -> Double 
+        comp : structures                         -> String 
+        hall : spacegroups                        -> String 
+        volume          : publications            -> Integer 
+        value           : reference_energies      -> Double 
+        type : meta_data                          -> String 
+        uid : hubbard_corrections                 -> String 
+        x1              : structures              -> Double 
+        z               : sites                   -> Double 
+        energy_pa       : structures              -> Double 
+        element_id : structures_element_set       -> String 
+        converged       : calculations            -> Boolean 
+        uid : meta_data                           -> String 
+        uid : hubbards                            -> String 
+        dftcode : calculations                    -> String 
+        fit_id : hubbard_corrections              -> String 
+        uid : calculations                        -> String 
+        fz              : atoms                   -> Double 
         uid : journals                            -> String 
         nsites          : structures              -> Integer 
-        uid : structures                          -> String 
-        attempt         : calculations            -> Integer 
-        entry_id : structures                     -> String 
-        uid : publications_author_set             -> String 
-        uid : calculations                        -> String 
-        uid : hubbard_corrections                 -> String 
-        input_id : calculations                   -> String 
-        uid : meta_data                           -> String 
-        structure_id : structures_meta_data       -> String 
-        path : calculations                       -> String 
-        structure_id : sites                      -> String 
-        x               : atoms                   -> Double 
-        duplicate_of_id : entries                 -> Integer 
-        x2              : structures              -> Double 
-        y3              : structures              -> Double 
-        pearson : spacegroups                     -> String 
-        magmom          : atoms                   -> Double 
-        output_id : calculations                  -> String 
-        energy          : calculations            -> Double 
-        band_gap        : calculations            -> Double 
-        label : structures                        -> String 
-        calculation_id : fits_dft                 -> String 
-        type : meta_data                          -> String 
-        volume          : publications            -> Integer 
-        lattice_system : spacegroups              -> String 
-        ntypes          : structures              -> Integer 
-        formula : compositions                    -> String 
-        metadata_id : entries_meta_data           -> String 
-        magmom          : structures              -> Double 
-        composition_id : calculations             -> String 
-        entry_id : entries_meta_data              -> String 
-        hm : spacegroups                          -> String 
-        delta_e         : structures              -> Double 
-        job_name : calculations                   -> String 
-        volume          : structures              -> Double 
-        dftcode : calculations                    -> String 
-        Element_id : compositions_element_set     -> String 
-        x3              : structures              -> Double 
-        site_id : atoms                           -> String 
-        fit_id : fits_dft                         -> String 
-        uid : hubbards                            -> String 
-        label : calculations                      -> String 
-        composition_id : compositions_element_set -> String 
-        title           : publications            -> Text 
-        z1              : structures              -> Double 
-        uid : publications                        -> String 
-        psp : calculations                        -> String 
-        fit_id : reference_energies               -> String 
-        uid : entries_element_set                 -> String 
-        entry_id : calculations                   -> String 
-        u               : hubbards                -> Double 
-        uid : compositions                        -> String 
-        uid : entries                             -> String 
+        composition_id : prototypes               -> String 
+        mass            : elements                -> Double 
         magmom          : calculations            -> Double 
-        bigind          : atoms                   -> Bigint 
-        natoms          : entries                 -> Integer 
-        c               : structures              -> Double 
-        l               : hubbards                -> Integer 
-        centrosymmetric : spacegroups             -> Boolean 
-        x1              : structures              -> Double 
-        name            : journals                -> Text 
-        energy          : structures              -> Double 
-        fx              : atoms                   -> Double 
-        code : journals                           -> String 
-        structure_id : structures_element_set     -> String 
-        value           : reference_energies      -> Double 
-        y               : sites                   -> Double 
-        volume_pa       : structures              -> Double 
-        hubbard_id : hubbard_corrections          -> String 
-        year            : publications            -> Integer 
-        ligand_id : hubbards                      -> String 
-        fz              : atoms                   -> Double 
-        runtime         : calculations            -> Double 
-        fit_id : hubbard_corrections              -> String 
+        uid : reference_energies                  -> String 
+        element_id : reference_energies           -> String 
+        job_name : calculations                   -> String 
 
  
 }
@@ -820,44 +902,44 @@ schema src_fk = literal : ty {
     foreign_keys
     //------
 
+        structure_id   : prototypes               -> structures 
         metadata_id    : calculations_meta_data   -> meta_data 
-        site_id        : atoms                    -> sites 
-        element_id     : atoms                    -> elements 
-        entry_id       : entries_meta_data        -> entries 
+        calculation_id : calculations_meta_data   -> calculations 
+        reference_id   : entries                  -> publications 
+        entry_id       : entries_element_set      -> entries 
+        fit_id         : fits_dft                 -> fits 
         calculation_id : fits_dft                 -> calculations 
+        author_id      : publications_author_set  -> authors 
+        element_id     : atoms                    -> elements 
+        metadata_id    : structures_meta_data     -> meta_data 
+        ligand_id      : hubbards                 -> elements 
+        site_id        : atoms                    -> sites 
+        composition_id : calculations             -> compositions 
+        calculation_id : calculations_element_set -> calculations 
         input_id       : calculations             -> structures 
         element_id     : hubbards                 -> elements 
-        composition_id : compositions_element_set -> compositions 
-        Element_id     : compositions_element_set -> elements 
-        ligand_id      : hubbards                 -> elements 
-        author_id      : publications_author_set  -> authors 
-        structure_id   : structures_element_set   -> structures 
-        element_id     : reference_energies       -> elements 
-        reference_id   : entries                  -> publications 
-        structure_id   : structures_meta_data     -> structures 
-        metadata_id    : structures_meta_data     -> meta_data 
-        reference_id   : publications_author_set  -> publications 
-        entry_id       : structures               -> entries 
-        element_id     : calculations_element_set -> elements 
-        spacegroup_id  : structures               -> spacegroups 
-        journal_id     : publications             -> journals 
-        composition_id : calculations             -> compositions 
-        composition_id : prototypes               -> compositions 
-        fit_id         : hubbard_corrections      -> fits 
         element_id     : hubbard_corrections      -> elements 
-        entry_id       : entries_element_set      -> entries 
-        calculation_id : calculations_element_set -> calculations 
-        element_id     : entries_element_set      -> elements 
-        fit_id         : fits_dft                 -> fits 
-        hubbard_id     : hubbard_corrections      -> hubbards 
-        fit_id         : reference_energies       -> fits 
-        output_id      : calculations             -> structures 
-        structure_id   : prototypes               -> structures 
-        calculation_id : calculations_meta_data   -> calculations 
-        metadata_id    : entries_meta_data        -> meta_data 
         entry_id       : calculations             -> entries 
-        structure_id   : atoms                    -> structures 
+        reference_id   : publications_author_set  -> publications 
+        output_id      : calculations             -> structures 
+        fit_id         : hubbard_corrections      -> fits 
         element_id     : structures_element_set   -> elements 
+        composition_id : prototypes               -> compositions 
+        metadata_id    : entries_meta_data        -> meta_data 
+        structure_id   : structures_meta_data     -> structures 
+        hubbard_id     : hubbard_corrections      -> hubbards 
+        Element_id     : compositions_element_set -> elements 
+        element_id     : entries_element_set      -> elements 
+        structure_id   : atoms                    -> structures 
+        entry_id       : structures               -> entries 
+        element_id     : reference_energies       -> elements 
+        fit_id         : reference_energies       -> fits 
+        structure_id   : structures_element_set   -> structures 
+        element_id     : calculations_element_set -> elements 
+        journal_id     : publications             -> journals 
+        composition_id : compositions_element_set -> compositions 
+        entry_id       : entries_meta_data        -> entries 
+        spacegroup_id  : structures               -> spacegroups 
         structure_id   : sites                    -> structures 
 
 
@@ -865,138 +947,138 @@ schema src_fk = literal : ty {
     attributes
     //------
 
-        uid : spacegroups                     -> String 
-        f_elec          : elements            -> Integer 
-        natoms          : calculations        -> Integer 
-        z3              : structures          -> Double 
-        page_last       : publications        -> Integer 
-        uid : entries_meta_data               -> String 
-        stability       : entries             -> Double 
-        path : entries                        -> String 
-        generic : compositions                -> String 
-        period          : elements            -> Integer 
-        nsteps          : calculations        -> Integer 
-        b               : structures          -> Double 
-        value           : hubbard_corrections -> Double 
-        energy_pa       : structures          -> Double 
-        number          : spacegroups         -> Integer 
-        convention : hubbards                 -> String 
-        ntypes          : compositions        -> Integer 
-        schoenflies : spacegroups             -> String 
-        z               : sites               -> Double 
-        meidema         : compositions        -> Double 
-        label : entries                       -> String 
-        uid : reference_energies              -> String 
-        xs : structures                       -> String 
-        uid : fits                            -> String 
-        y1              : structures          -> Double 
-        x               : sites               -> Double 
-        converged       : calculations        -> Boolean 
-        uid : calculations_meta_data          -> String 
-        measured        : structures          -> Boolean 
-        z               : elements            -> Integer 
-        y               : atoms               -> Double 
-        mass            : elements            -> Double 
-        first : authors                       -> String 
+        code : journals                       -> String 
         specific_heat   : elements            -> Double 
-        a               : structures          -> Double 
-        xc : calculations                     -> String 
-        s_elec          : elements            -> Integer 
-        uid : fits_dft                        -> String 
-        y2              : structures          -> Double 
-        uid : calculations_element_set        -> String 
-        system_type : structures              -> String 
-        symbol : elements                     -> String 
-        configuration : calculations          -> String 
-        pw              : calculations        -> Double 
-        charge          : atoms               -> Double 
-        hall : spacegroups                    -> String 
-        ys : structures                       -> String 
-        uid : atoms                           -> String 
-        ox              : hubbards            -> Double 
-        z               : atoms               -> Double 
-        uid : structures_element_set          -> String 
-        meta_stability  : structures          -> Double 
-        value           : meta_data           -> Text 
-        last : authors                        -> String 
-        page_first      : publications        -> Integer 
-        delta_e         : entries             -> Double 
-        zs : structures                       -> String 
-        p_elec          : elements            -> Integer 
-        uid : elements                        -> String 
-        fy              : atoms               -> Double 
-        magmom_pa       : structures          -> Double 
         uid : authors                         -> String 
-        name : fits                           -> String 
-        uid : sites                           -> String 
-        uid : compositions_element_set        -> String 
-        group           : elements            -> Integer 
-        d_elec          : elements            -> Integer 
-        uid : structures_meta_data            -> String 
-        natoms          : structures          -> Integer 
+        uid : publications                    -> String 
         uid : prototypes                      -> String 
-        settings        : calculations        -> Text 
+        x3              : structures          -> Double 
+        generic : compositions                -> String 
+        delta_e         : structures          -> Double 
+        nsteps          : calculations        -> Integer 
+        bigind          : atoms               -> Bigint 
+        natoms          : structures          -> Integer 
+        xs : structures                       -> String 
+        magmom          : structures          -> Double 
         z2              : structures          -> Double 
-        comp : structures                     -> String 
-        name : elements                       -> String 
+        label : calculations                  -> String 
+        u               : hubbards            -> Double 
+        uid : elements                        -> String 
         user : calculations                   -> String 
+        c               : structures          -> Double 
+        uid : structures_element_set          -> String 
+        uid : spacegroups                     -> String 
+        delta_e         : entries             -> Double 
+        uid : calculations_element_set        -> String 
+        path : calculations                   -> String 
+        runtime         : calculations        -> Double 
+        duplicate_of_id : entries             -> Integer 
+        settings        : calculations        -> Text 
+        x               : atoms               -> Double 
+        z               : elements            -> Integer 
+        a               : structures          -> Double 
+        y2              : structures          -> Double 
+        volume          : structures          -> Double 
+        psp : calculations                    -> String 
+        ys : structures                       -> String 
+        name            : journals            -> Text 
+        z               : atoms               -> Double 
+        convention : hubbards                 -> String 
+        lattice_system : spacegroups          -> String 
+        meidema         : compositions        -> Double 
+        uid : compositions_element_set        -> String 
+        energy          : calculations        -> Double 
+        value           : meta_data           -> Text 
+        uid : sites                           -> String 
+        period          : elements            -> Integer 
+        uid : entries_element_set             -> String 
+        ntypes          : compositions        -> Integer 
+        uid : entries                         -> String 
+        xc : calculations                     -> String 
+        fx              : atoms               -> Double 
+        name : elements                       -> String 
+        fy              : atoms               -> Double 
+        y3              : structures          -> Double 
+        d_elec          : elements            -> Integer 
+        x               : sites               -> Double 
+        centrosymmetric : spacegroups         -> Boolean 
+        name : fits                           -> String 
+        uid : structures_meta_data            -> String 
+        symbol : elements                     -> String 
+        attempt         : calculations        -> Integer 
+        group           : elements            -> Integer 
+        y1              : structures          -> Double 
+        zs : structures                       -> String 
+        uid : structures                      -> String 
+        label : structures                    -> String 
+        hm : spacegroups                      -> String 
+        uid : fits                            -> String 
+        volume_pa       : structures          -> Double 
+        l               : hubbards            -> Integer 
+        page_last       : publications        -> Integer 
+        configuration : calculations          -> String 
+        x2              : structures          -> Double 
+        magmom          : atoms               -> Double 
+        stability       : entries             -> Double 
+        system_type : structures              -> String 
+        y               : sites               -> Double 
+        natoms          : entries             -> Integer 
+        band_gap        : calculations        -> Double 
+        p_elec          : elements            -> Integer 
+        natoms          : calculations        -> Integer 
+        measured        : structures          -> Boolean 
+        s_elec          : elements            -> Integer 
+        energy          : structures          -> Double 
+        pw              : calculations        -> Double 
+        uid : fits_dft                        -> String 
+        z3              : structures          -> Double 
+        schoenflies : spacegroups             -> String 
+        title           : publications        -> Text 
+        magmom_pa       : structures          -> Double 
+        y               : atoms               -> Double 
+        ox              : hubbards            -> Double 
+        pearson : spacegroups                 -> String 
+        uid : publications_author_set         -> String 
+        charge          : atoms               -> Double 
+        uid : entries_meta_data               -> String 
+        uid : calculations_meta_data          -> String 
+        formula : compositions                -> String 
+        number          : spacegroups         -> Integer 
+        last : authors                        -> String 
+        year            : publications        -> Integer 
+        b               : structures          -> Double 
+        f_elec          : elements            -> Integer 
+        uid : atoms                           -> String 
+        uid : compositions                    -> String 
+        page_first      : publications        -> Integer 
+        value           : hubbard_corrections -> Double 
+        label : entries                       -> String 
+        path : entries                        -> String 
+        z1              : structures          -> Double 
+        first : authors                       -> String 
+        ntypes          : structures          -> Integer 
+        meta_stability  : structures          -> Double 
+        comp : structures                     -> String 
+        hall : spacegroups                    -> String 
+        volume          : publications        -> Integer 
+        value           : reference_energies  -> Double 
+        type : meta_data                      -> String 
+        uid : hubbard_corrections             -> String 
+        x1              : structures          -> Double 
+        z               : sites               -> Double 
+        energy_pa       : structures          -> Double 
+        converged       : calculations        -> Boolean 
+        uid : meta_data                       -> String 
+        uid : hubbards                        -> String 
+        dftcode : calculations                -> String 
+        uid : calculations                    -> String 
+        fz              : atoms               -> Double 
         uid : journals                        -> String 
         nsites          : structures          -> Integer 
-        uid : structures                      -> String 
-        attempt         : calculations        -> Integer 
-        uid : hubbard_corrections             -> String 
-        uid : publications_author_set         -> String 
-        uid : calculations                    -> String 
-        uid : meta_data                       -> String 
-        path : calculations                   -> String 
-        x               : atoms               -> Double 
-        duplicate_of_id : entries             -> Integer 
-        x2              : structures          -> Double 
-        y3              : structures          -> Double 
-        pearson : spacegroups                 -> String 
-        magmom          : atoms               -> Double 
-        energy          : calculations        -> Double 
-        band_gap        : calculations        -> Double 
-        label : structures                    -> String 
-        type : meta_data                      -> String 
-        volume          : publications        -> Integer 
-        lattice_system : spacegroups          -> String 
-        ntypes          : structures          -> Integer 
-        formula : compositions                -> String 
-        magmom          : structures          -> Double 
-        hm : spacegroups                      -> String 
-        delta_e         : structures          -> Double 
-        job_name : calculations               -> String 
-        volume          : structures          -> Double 
-        dftcode : calculations                -> String 
-        x3              : structures          -> Double 
-        uid : hubbards                        -> String 
-        label : calculations                  -> String 
-        title           : publications        -> Text 
-        z1              : structures          -> Double 
-        uid : publications                    -> String 
-        psp : calculations                    -> String 
-        uid : entries_element_set             -> String 
-        u               : hubbards            -> Double 
-        uid : compositions                    -> String 
-        uid : entries                         -> String 
+        mass            : elements            -> Double 
         magmom          : calculations        -> Double 
-        bigind          : atoms               -> Bigint 
-        natoms          : entries             -> Integer 
-        c               : structures          -> Double 
-        l               : hubbards            -> Integer 
-        centrosymmetric : spacegroups         -> Boolean 
-        x1              : structures          -> Double 
-        name            : journals            -> Text 
-        energy          : structures          -> Double 
-        fx              : atoms               -> Double 
-        code : journals                       -> String 
-        value           : reference_energies  -> Double 
-        y               : sites               -> Double 
-        volume_pa       : structures          -> Double 
-        year            : publications        -> Integer 
-        fz              : atoms               -> Double 
-        runtime         : calculations        -> Double 
+        uid : reference_energies              -> String 
+        job_name : calculations               -> String 
 
  
 }
@@ -1327,7 +1409,7 @@ constraints con_fk_src = literal : s_src_raw {
 //----------------------
 
 
-instance i_src_raw = import_jdbc "com.mysql.jdbc.Driver" "jdbc:mysql://127.0.0.1:3306/oqmd?user=ksb&password=ksb" : s_src_raw {
+instance i_src_raw = import_jdbc "jdbc:mysql://mysql.categoricaldata.net:3306/qchem?user=qchem_public&password=quantumchemistry" : s_src_raw {
     journals -> 
         "SELECT id AS `id`, CONVERT(id,CHAR(50)) AS `uid`,
             `code` AS `code`,
@@ -1509,14 +1591,14 @@ instance i_src_raw = import_jdbc "com.mysql.jdbc.Driver" "jdbc:mysql://127.0.0.1
             `z1`+0E0                                                                 AS `z1`,
             `z2`+0E0                                                                 AS `z2`,
             `z3`+0E0                                                                 AS `z3`,
-            CONCAT((SELECT GROUP_CONCAT(`element_id`) FROM atoms WHERE structure_id = structures.id ) , (',')) AS `comp`,
-            ('bulk') AS `system_type`,
-            (SELECT GROUP_CONCAT(`x`) FROM atoms WHERE structure_id = structures.id ) AS `xs`,
-            POW(((((0) + POW(`x1`,(2))) + POW(`x2`,(2))) + POW(`x3`,(2))),(0.5))+0E0 AS `a`,
             (SELECT GROUP_CONCAT(`y`) FROM atoms WHERE structure_id = structures.id ) AS `ys`,
+            ('bulk') AS `system_type`,
+            POW(((((0) + POW(`x1`,(2))) + POW(`x2`,(2))) + POW(`x3`,(2))),(0.5))+0E0 AS `a`,
+            (SELECT GROUP_CONCAT(`x`) FROM atoms WHERE structure_id = structures.id ) AS `xs`,
             POW(((((0) + POW(`z1`,(2))) + POW(`z2`,(2))) + POW(`z3`,(2))),(0.5))+0E0 AS `c`,
-            (SELECT GROUP_CONCAT(`z`) FROM atoms WHERE structure_id = structures.id ) AS `zs`,
             POW(((((0) + POW(`y1`,(2))) + POW(`y2`,(2))) + POW(`y3`,(2))),(0.5))+0E0 AS `b`,
+            CONCAT((SELECT GROUP_CONCAT(`element_id`) FROM atoms WHERE structure_id = structures.id ) , (',')) AS `comp`,
+            (SELECT GROUP_CONCAT(`z`) FROM atoms WHERE structure_id = structures.id ) AS `zs`,
             COALESCE(CONVERT(`entry_id`,CHAR(250)),
                      CONCAT('structures.entry_id$',CONVERT(id,CHAR(250))))
                                                                                      AS `entry_id`,
@@ -1541,12 +1623,12 @@ instance i_src_raw = import_jdbc "com.mysql.jdbc.Driver" "jdbc:mysql://127.0.0.1
             `label`                                                                                                                                   AS `label`,
             `settings`                                                                                                                                AS `settings`,
             `configuration`                                                                                                                           AS `configuration`,
-            ('OQMD') AS `user`,
+            ('vasp') AS `dftcode`,
             CONCAT(('oqmd - ') , `label`)                                                                                                             AS `job_name`,
-            ('PBE') AS `xc`,
+            ('OQMD') AS `user`,
             JSON_EXTRACT(REPLACE(REPLACE(REPLACE(`settings`,('True'),('true')),('False'),('false')),(\"'\"),('\"')),('$.potentials'))                 AS `psp`,
             CONVERT(JSON_EXTRACT(REPLACE(REPLACE(REPLACE(`settings`,('True'),('true')),('False'),('false')),(\"'\"),('\"')),('$.encut')),Decimal)+0E0 AS `pw`,
-            ('vasp') AS `dftcode`,
+            ('PBE') AS `xc`,
             COALESCE(CONVERT(`composition_id`,CHAR(250)),
                      CONCAT('calculations.composition_id$',CONVERT(id,CHAR(250))))
                                                                                                                                                       AS `composition_id`,
@@ -1824,7 +1906,7 @@ query Q = literal : src -> inter {
 //--------------------
 
 
-mapping M = literal : inter -> tar {
+mapping M = literal : inter -> tar_nc {
      
 
     entity
@@ -1898,7 +1980,10 @@ instance i_altered = eval Q i_src
 instance i_mapped = sigma M i_altered
 
 
-instance i_merged = coproduct i_mapped + itar : tar
+instance i_constrained = cascade_delete i_mapped : tar
+
+
+instance i_merged = coproduct i_constrained + itar : tar
 
 
 //----------------------------
@@ -1938,10 +2023,10 @@ instance i_final = quotient_query i_merged {
 //-----------------------------
 
 
-command cmd_drop = exec_jdbc "com.mysql.jdbc.Driver" "jdbc:mysql://127.0.0.1:3306/?user=ksb&password=ksb" {"DROP DATABASE IF EXISTS `cql_merged`"}
+command cmd_drop = exec_jdbc "jdbc:mysql://127.0.0.1:3306/?user=ksb&password=ksb" {"DROP DATABASE IF EXISTS `integrated`"}
 
 
-command cmd_create = exec_jdbc "com.mysql.jdbc.Driver" "jdbc:mysql://127.0.0.1:3306/?user=ksb&password=ksb" {"CREATE SCHEMA `cql_merged`"}
+command cmd_create = exec_jdbc "jdbc:mysql://127.0.0.1:3306/?user=ksb&password=ksb" {"CREATE SCHEMA `integrated`"}
 
 
-command cmd_merged = export_jdbc_instance i_final "com.mysql.jdbc.Driver" "jdbc:mysql://127.0.0.1:3306/cql_merged?user=ksb&password=ksb" ""
+command cmd_merged = export_jdbc_instance i_final "jdbc:mysql://127.0.0.1:3306/integrated?user=ksb&password=ksb" ""

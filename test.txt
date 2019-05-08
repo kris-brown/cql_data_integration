@@ -1,0 +1,3 @@
+abc
+
+export PYTHONPATH=/Users/ksb/cql_data_integration:PYTHONPATH

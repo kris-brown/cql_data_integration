@@ -1,10 +1,9 @@
 # Internal
-
 from cdi import (
     Schema, Entity, Attr, FK, Int,Decimal,Double,Varchar,Text,
     Date, PathEQ, Path, JLit, String, Gen, Boolean, EQ)
 
-from cdi.science_example.inputs.javafuncs import gteq
+from ..inputs.javafuncs import gteq
 ################################################################################
 #############
 # Catalysis #

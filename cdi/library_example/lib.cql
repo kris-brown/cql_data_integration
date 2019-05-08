@@ -18,20 +18,20 @@ typeside ty = literal {
 
 
     java_functions
-        cat : String,String -> String
-             = "return input[0] + input[1]"
+        count_words : String -> Integer
+             = "return 1 + input[0].length() - input[0].replaceAll(' ', '').length()"
 
         matches : String,String -> Boolean
              = "return input[0].matches(input[1])"
 
-        plus : Integer,Integer -> Integer
+        len : String -> Integer
+             = "return input[0].length()"
+
+        cat : String,String -> String
              = "return input[0] + input[1]"
 
-        count_words : String -> Integer
-             = "return 1 + input[0].length() - input[0].replaceAll(' ', '').length()"
-
-        len : String -> Integer
-             = "return input[0].length()" }
+        plus : Integer,Integer -> Integer
+             = "return input[0] + input[1]" }
 
 
 //----------------------------
@@ -51,21 +51,21 @@ schema src = literal : ty {
     foreign_keys
     //------
 
-        novel_id : Chap  -> Nov 
         fav      : Readr -> Nov 
+        novel_id : Chap  -> Nov 
 
 
 
     attributes
     //------
 
-        borrowed : Readr -> String 
-        title : Nov      -> String 
-        rname : Readr    -> String 
-        text : Chap      -> String 
         aname : Nov      -> String 
-        num  : Chap      -> Integer 
+        title : Nov      -> String 
         year : Nov       -> Integer 
+        num  : Chap      -> Integer 
+        rname : Readr    -> String 
+        borrowed : Readr -> String 
+        text : Chap      -> String 
 
  
 }
@@ -86,26 +86,71 @@ schema tar = literal : ty {
     foreign_keys
     //------
 
+        novel        : Chapter -> Novel 
+        favorite     : Reader  -> Novel 
+        l            : Borrow  -> Library 
+        n            : Borrow  -> Novel 
         wrote : Novel          -> Author 
         r            : Borrow  -> Reader 
-        n            : Borrow  -> Novel 
-        novel        : Chapter -> Novel 
         most_popular : Library -> Novel 
-        favorite     : Reader  -> Novel 
 
 
 
     attributes
     //------
 
+        born : Author        -> Integer 
         page_start : Chapter -> Integer 
         n_words    : Chapter -> Integer 
-        total_len  : Borrow  -> Integer 
-        born : Author        -> Integer 
-        readername : Reader  -> String 
-        libname : Library    -> String 
-        authorname : Author  -> String 
         num        : Chapter -> Integer 
+        authorname : Author  -> String 
+        date       : Borrow  -> Date 
+        total_len  : Borrow  -> Integer 
+        libname : Library    -> String 
+        readername : Reader  -> String 
+        title : Novel        -> String 
+
+ 
+}
+
+
+schema tar_nc = literal : ty { 
+
+    entities
+    //------
+
+        Chapter
+        Novel
+        Reader
+        Borrow
+        Author
+        Library
+
+    foreign_keys
+    //------
+
+        novel        : Chapter -> Novel 
+        favorite     : Reader  -> Novel 
+        l            : Borrow  -> Library 
+        n            : Borrow  -> Novel 
+        wrote : Novel          -> Author 
+        r            : Borrow  -> Reader 
+        most_popular : Library -> Novel 
+
+
+
+    attributes
+    //------
+
+        born : Author        -> Integer 
+        page_start : Chapter -> Integer 
+        n_words    : Chapter -> Integer 
+        num        : Chapter -> Integer 
+        authorname : Author  -> String 
+        date       : Borrow  -> Date 
+        total_len  : Borrow  -> Integer 
+        libname : Library    -> String 
+        readername : Reader  -> String 
         title : Novel        -> String 
 
  
@@ -120,15 +165,15 @@ schema inter = literal : ty {
         Nov
         Chap
         Readr
-        Borrow
         Author
+        Borrow
 
     foreign_keys
     //------
 
-        wrote : Nov       -> Author 
-        n        : Borrow -> Nov 
         fav      : Readr  -> Nov 
+        n        : Borrow -> Nov 
+        wrote : Nov       -> Author 
         novel_id : Chap   -> Nov 
         r        : Borrow -> Readr 
 
@@ -137,12 +182,12 @@ schema inter = literal : ty {
     attributes
     //------
 
-        title : Nov        -> String 
-        n_words   : Chap   -> Integer 
-        rname : Readr      -> String 
         aname : Nov        -> String 
-        num       : Chap   -> Integer 
+        title : Nov        -> String 
         total_len : Borrow -> Integer 
+        num       : Chap   -> Integer 
+        rname : Readr      -> String 
+        n_words   : Chap   -> Integer 
 
  
 }
@@ -206,7 +251,7 @@ query Q = literal : src -> inter {
             Readr : Readr 
 
         where 
-            matches(Readr.borrowed,cat(".*"@String,cat(Nov.title,".*"@String))) = "true"@Boolean 
+            matches(Readr.borrowed,cat(cat(".*"@String,Nov.title),".*"@String)) = "true"@Boolean 
 
         attributes 
             total_len -> plus(len(Readr.rname),len(Nov.title)) 
@@ -255,7 +300,7 @@ query Q = literal : src -> inter {
 //--------------------
 
 
-mapping M = literal : inter -> tar {
+mapping M = literal : inter -> tar_nc {
      
 
     entity
@@ -282,17 +327,17 @@ mapping M = literal : inter -> tar {
         rname -> readername
 
     entity
+        Author -> Author
+    
+    
+
+    entity
         Borrow    -> Borrow
     foreign_keys
         r         -> r
         n         -> n
     attributes
-        total_len -> total_len
-
-    entity
-        Author -> Author
-    
-     }
+        total_len -> total_len }
 
 
 //--------------------------------------------------
@@ -306,7 +351,10 @@ instance i_altered = eval Q isrc
 instance i_mapped = sigma M i_altered
 
 
-instance i_merged = coproduct i_mapped + itar : tar
+instance i_constrained = cascade_delete i_mapped : tar
+
+
+instance i_merged = coproduct i_constrained + itar : tar
 
 
 //----------------------------
@@ -322,24 +370,10 @@ instance i_final = quotient_query i_merged {
 
     entity Reader -> {from a:Reader b:Reader where a.readername=b.readername}
 
-    entity Borrow -> {from a:Borrow b:Borrow where a.r=b.r a.n=b.n}
+    entity Borrow -> {from a:Borrow b:Borrow where a.r=b.r a.n=b.n a.l=b.l}
 
     entity Author -> {from a:Author b:Author where a.authorname=b.authorname}
 
     entity Library -> {from a:Library b:Library where a.libname=b.libname} 
     options
         quotient_use_chase = false}
-
-
-//-----------------------------
-//Section 4: Export to database
-//-----------------------------
-
-
-command cmd_drop = exec_jdbc "com.mysql.jdbc.Driver" "jdbc:mysql://127.0.0.1:3306/?user=ksb&password=ksb" {"DROP DATABASE IF EXISTS `lib_merged`"}
-
-
-command cmd_create = exec_jdbc "com.mysql.jdbc.Driver" "jdbc:mysql://127.0.0.1:3306/?user=ksb&password=ksb" {"CREATE SCHEMA `lib_merged`"}
-
-
-command cmd_merged = export_jdbc_instance i_final "com.mysql.jdbc.Driver" "jdbc:mysql://127.0.0.1:3306/lib_merged?user=ksb&password=ksb" ""
