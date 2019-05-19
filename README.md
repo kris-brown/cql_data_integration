@@ -6,9 +6,10 @@ The interface exposes only a tiny fraction of the expressivity of CQL. However, 
 The underlying interface for CQL (`/cdi/core`) is very preliminary and for demonstration purposes only.
 
 ## Setup
-### Setup virtual environment
 
-This setup has only been tested on Mac.
+This setup has only been tested on Mac OSX.
+
+### Setup virtual environment
 
 ```bash
 cd INSTALL_DIR/cql_data_integration
@@ -21,6 +22,8 @@ pip install -r requirements.txt
 Before running any Python scripts, first execute `source .env/bin/activate` in the main directory.
 
 ### Setup MySQL
+MySQL can be installed with `brew install mysql@5.7`
+
 Download [Java MySQL connector](https://dev.mysql.com/downloads/connector/j/) (Platform independent, TAR archive). Make sure to note the path to the .jar file, which will be used in the next step. Note that MySQL is not necessary to use CQL or this interface, but it is needed to connect to external data sources (such as OQMD) or to export results.
 
 ### Setup CQL
@@ -80,8 +83,6 @@ Readr = Entity(
 Our demonstration target schema will specify a mixture of information that can be directly found in the source, some derivable from the source, and some information not even in principle derivable from the source. It clearly represents similar information to **Src** (the meanings of **Novel**, **Chapter**, and **Reader** are clear, although there is not one-to-one overlap in their attributes). It also introduces **Library** and **Author** entities, as well as a **Borrow** entity (which represents **Reader**+**Novel**+**Library** triples, with useful information such as what date the novel was checked out by the reader, as well as less useful information like the sum of the lengths of the reader's name + the novel's title).
 
 ```python
-from cdi import Date
-
 Novel = Entity(
     name  = 'Novel',
     attrs = [Attr('title',Varchar,id = True,desc = 'Book title')],
@@ -112,7 +113,7 @@ Library = Entity(
 
 Borrow = Entity(
     name  = 'Borrow',
-    desc  = 'A triple, (Novel,Reader,Library), meaning that this novel was borrowed from this libraryby this reader',
+    desc  = 'A triple, (Novel,Reader,Library), meaning that this novel was borrowed from this library by this reader',
     attrs = [Attr('date',     Date,  desc = 'Date novel was checked out by reader from the library'),
              Attr('total_len',       desc = "Sum of letters in reader's name + book title (example derived property)")],
     fks   = [FK('r', 'Reader',  id = True),
@@ -120,7 +121,7 @@ Borrow = Entity(
              FK('l', 'Library', id = True)])
 ```
 
-Lastly, we combine assemble the entities into a `Schema` object.
+Lastly, we assemble the entities into a `Schema` object.
 
 ```python
 from cdi import Schema
@@ -154,6 +155,8 @@ oqmd_db   = Conn(host = 'mysql.categoricaldata.net',
 For small toy examples, we can enter the data manually. An `Instance` maps attributes/relations to a map of generators (distinct records of some entity) which gives a generator's values for that attribute/relation.
 
 ```python
+from cdi import Gen, JLit
+
 r1,r2               = [Gen('r%d'%i,Readr) for i in range(1,3)]
 n1,n2,n3            = [Gen('n%d'%i,Nov) for i in range(1,4)]
 n1c1,n1c2,n2c1,n3c1 = [Gen('n%dc%d'%(x,y),Chap) for x,y in [(1,1),(1,2),(2,1),(3,1)]]
@@ -162,18 +165,18 @@ one,two,y1,y2,y3    = [JLit(x,Integer) for x in [1,2,1924,1915,1926]]
 # Wrap Python string as a typed Java string
 s = lambda x: JLit(x,Varchar)
 
-i_src= Instance({Readr['fav']      : {r1   : n1,  r2   : n2},
-                Chap['novel_id']  : {n1c1 : n1,  n1c2 : n1,  n2c1 : n2,  n3c1 : n3},
-                Chap['num']       : {n1c1 : one, n1c2 : two, n2c1 : one, n3c1 : one},
-                Nov['year']       : {n1   : y1,  n2   : y2,  n3   : y3},
-                Readr['rname']    : {r1   : s('KSB'),  r2 : s("BR")},
-                Nov['aname']      : {n1   : s('Mann'), n2 : s('Kakfa'),n3 : s('Kafka')},
-                Nov['title']      : {n1   : s('Magic'),n2 : s('Meta'), n3 : s('Castle')},
-                Readr['borrowed'] : {r1   : s('Magic, Meta'),r2 : s("Meta")},
-                Chap['text']      : {n1c1 : s("An unassuming young man was travelling..."),
-                                     n1c2 : s("Hans Castorp retained only pale..."),
-                                     n2c1 : s("One morning, as Gregor..."),
-                                     n3c1 : s("It was late in the evening when K...")}})
+i_src = Instance({Readr['fav']      : {r1   : n1,  r2   : n2},
+                  Chap['novel_id']  : {n1c1 : n1,  n1c2 : n1,  n2c1 : n2,  n3c1 : n3},
+                  Chap['num']       : {n1c1 : one, n1c2 : two, n2c1 : one, n3c1 : one},
+                  Nov['year']       : {n1   : y1,  n2   : y2,  n3   : y3},
+                  Readr['rname']    : {r1   : s('KSB'),  r2 : s("BR")},
+                  Nov['aname']      : {n1   : s('Mann'), n2 : s('Kakfa'),n3 : s('Kafka')},
+                  Nov['title']      : {n1   : s('Magic'),n2 : s('Meta'), n3 : s('Castle')},
+                  Readr['borrowed'] : {r1   : s('Magic, Meta'),r2 : s("Meta")},
+                  Chap['text']      : {n1c1 : s("An unassuming young man was travelling..."),
+                                       n1c2 : s("Hans Castorp retained only pale..."),
+                                       n2c1 : s("One morning, as Gregor..."),
+                                       n3c1 : s("It was late in the evening when K...")}})
 
 ```
 
@@ -183,6 +186,8 @@ For instance, the first row in the `Instance` declaration below says that the fa
 
 The first thing to do is to provide the source and target schemas.
 ```python
+from cdi import Overlap
+
 overlap = Overlap(
     s1 = src,
     s2 = tar,
@@ -192,6 +197,7 @@ overlap = Overlap(
 The heart of an overlap specification is the path equalities. These are expressed as a list of `PathEQ` objects, where the first path is in **Src** and the second in **Tar**. A path equality conveys the fact that the meaning of taking a path in one schema has the same _meaning_ as taking that path in the other. The simplest case is below:
 
 ```python
+from cdi import PathEQ, Path
 
 overlap = Overlap(
     ...
@@ -259,7 +265,7 @@ overlap = Overlap(
 This says that we have possibly a different author for every instance of **Nov**, and, in conjunction with our earlier path equality (`Nov.aname` ≋ `Novel.wrote.authorname`), is sufficient to specify what we want.<sup>[3](#myfootnote3)</sup> A more complicated instance of entity creation is below:
 
 ```python
-from cdi import CQLExpr, Boolean, Lit, EQ
+from cdi import CQLExpr, Lit, EQ
 
 matches = JavaFunc('matches', [String,String],   Boolean, "return input[0].matches(input[1])")
 plus    = JavaFunc('plus',    [Integer,Integer], Integer, "return input[0] + input[1]")
@@ -277,8 +283,8 @@ NewEntity(
     name  = 'Borrow',
     gens  = [nov,readr],
     where = [EQ(matches(readr['borrowed'],
-                 concat(wild,nov['title'],wild)),
-             Lit('true',Boolean))],
+                        concat(wild, nov['title'], wild)),
+                Lit('true',Boolean))],
     attrs = {Attr('total_len',Integer): plus(Len(readr['rname']),
                                              Len(nov['title']))},
     fks   = {FK('r','Readr') : readr,
@@ -286,7 +292,7 @@ NewEntity(
 )
 ```
 
-We want one **Borrow** instance for every (**Readr**,**Nov**) pair in **Src**. But we don't want to create these pairs indiscriminately (the _meaning_ of **Borrow** in **Tar** is that some person borrowed the book). Luckily we do have sufficient information to determine this: the _borrow_ attribute has a string concatenated list of novels that have borrowed, so we can use a regex match as a first attempt to generate the correct pairs and populate one of the attributes that is a function of **Reader**,**Novel** attributes that we do have (we still do not know what **Library** they were borrowed at or what date, but we have done as much as possible).
+We want one **Borrow** instance for every (**Readr**,**Nov**) pair in **Src**. But we don't want to create these pairs indiscriminately (the _meaning_ of **Borrow** in **Tar** is that some person borrowed the book). Luckily we do have sufficient information to determine this: the _borrow_ attribute has a string concatenated list of novels that have borrowed, so we can use a regex match in the _where_ clause as a first attempt to generate the correct pairs. We can populate one of the attributes that is a function attributes that we do have (we still do not know what **Library** they were borrowed at or what date, but we have done as much as possible).
 
 
 
@@ -295,7 +301,9 @@ We want one **Borrow** instance for every (**Readr**,**Nov**) pair in **Src**. B
 With an `Overlap` specified and passing a list of all the `JavaFunc`s that were used, we can construct a `Migrate` object with a `file` method which formats the CQL input file to draw data from the correct inputs. A `merged` parameter can also be specified with a MySQL database connection in order to have the results exported.
 
 ```python
-m  = Migrate(src = src, tar = tar, overlap = overlap, funcs = funcs)
+from cdi import Migrate
+
+m  = Migrate(src = src, tar = tar, overlap = overlap, funcs = [count_words,Len,plus,matches,cat])
 fi = m.file(src = isrc, tar = itar)
 with open('cdi/library_example/lib.cql','w') as f:
     f.write(fi)

@@ -19,10 +19,7 @@ def concat(*args : CQLExpr) -> CQLExpr:
     '''Concatenate multiple strings within CQL: folds n arguments into a series of binary applications of 'cat' '''
     return reduce(cat,args)
 
-
-
 wild = Lit(".*",String) # regex wildcard
-
 
 ##################
 # Java Functions #
