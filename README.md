@@ -317,7 +317,7 @@ python -m cdi.library_example.main
 
 In the CQL GUI, we can open this file and run it. The result will look like this:
 
-![Demo](http://web.stanford.edu/~ksb/Demo_Result.png)
+![Demo](http://web.stanford.edu/~ksb/images/Demo_Result.png)
 
 There are many things we can check to see that the data was migrated properly (such as counting the number of letters in Reader's names + Novel titles and comparing to **Borrow**.*total_len*), and that attributes that could not have been populated were not (e.g. **Author**.*born*, **Chapter**.*page_start*).<sup>[4](#myfootnote4)</sup>
 
