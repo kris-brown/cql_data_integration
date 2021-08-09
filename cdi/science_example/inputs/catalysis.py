@@ -127,7 +127,7 @@ rich_pe = [
            Path(JLit('molecule', String))),
 
     PathEQ(Path(s0['struct'], struct['system_type']),
-           Path(JLit('bulk', String))),
+           Path(JLit('surface', String))),
 
     PathEQ(Path(st0['species'],species['phase']),
            Path(st0['system_type'])),
